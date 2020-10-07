@@ -1,0 +1,21 @@
+// FlatBuffers Schema
+// http://google.github.io/flatbuffers/
+
+namespace models;
+
+table Stage {
+    Wait:uint64;
+    Type:uint16=0;
+    Verb:uint8=0;
+    Flag:uint8=0;
+    EnID:string;
+    Text:string;
+}
+
+table Journal {
+    ID:[uint8];
+    Start:uint64;
+    Total:uint64;
+    Chain:[Stage];
+    Service:string;
+}
