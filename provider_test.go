@@ -40,6 +40,11 @@ func (s *ProviderSuite) TearDownTest() {
 
 func (s *ProviderSuite) TestPrint() {
 
+	mt := &mType{
+		id:   24,
+		name: "event",
+	}
+
 	// Не должны сюда попасть
 	if s.prv.V(2) {
 		s.True(false)
@@ -52,8 +57,8 @@ func (s *ProviderSuite) TestPrint() {
 
 	// Должны записать данные парочке моделей
 	if s.prv.V(0) {
-		s.prv.Model(42, "", "empty %s", "id")
-		s.prv.Model(42, "eventID", "some %s", "comment")
+		s.prv.Model(mt, "", "empty %s", "id")
+		s.prv.Model(mt, "eventID", "some %s", "comment")
 	}
 
 	// Должны записать данные о модели с ошибкой
@@ -67,7 +72,7 @@ func (s *ProviderSuite) TestPrint() {
 
 	// Поскольку у нас была ошибка, должен быть сделан Flush
 	// Проверим, какой лог получился, но только кусками, потому что много случайных данных
-	s.Contains(s.log.Result, "eventID (42)")
+	s.Contains(s.log.Result, "eventID (24)")
 	s.Contains(s.log.Result, "ololo test 42")
 	s.Contains(s.log.Result, "empty id")
 	s.Contains(s.log.Result, "some comment")
@@ -85,3 +90,11 @@ func (s *ProviderSuite) TestPrint() {
 type MockDriver struct{ mock.Mock }
 
 func (m *MockDriver) InsertEntry(e *Entry) error { return m.Called(e).Error(0) }
+
+type mType struct {
+	id   int
+	name string
+}
+
+func (mt mType) ID() int        { return mt.id }
+func (mt mType) String() string { return mt.name }

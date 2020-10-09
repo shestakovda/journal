@@ -6,6 +6,11 @@ import (
 	"github.com/shestakovda/journal/crash"
 )
 
+type ModelType interface {
+	ID() int
+	String() string
+}
+
 // Provider сборки и сохранения журнала
 type Provider interface {
 	/*
@@ -38,7 +43,7 @@ type Provider interface {
 		* Вызов функции создает новую отметку времени в цепочке
 		* Если указан пустой идентификатор, то функция аналогична вызову Print
 	*/
-	Model(mtp int, mid string, txt string, args ...interface{})
+	Model(mtp ModelType, mid string, txt string, args ...interface{})
 
 	/*
 		Crash - логирование ошибки в журнал с формированием и записью отчета.
@@ -92,11 +97,11 @@ type Factory interface {
 	/*
 		ByModel - получение всех записей журнала по конкретной модели
 	*/
-	ByModel(mtp int, mid string) ([]Model, error)
+	ByModel(mtp ModelType, mid string) ([]Model, error)
 
 	Cursor(id string) (_ Cursor, err error)
 	ByDate(from, to time.Time, page uint, services ...string) (_ Cursor, err error)
-	ByModelDate(mtp int, mid string, from, to time.Time, page uint, services ...string) (_ Cursor, err error)
+	ByModelDate(mtp ModelType, mid string, from, to time.Time, page uint, services ...string) (_ Cursor, err error)
 }
 
 // Model - запись журнала в БД

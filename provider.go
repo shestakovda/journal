@@ -68,10 +68,10 @@ func (p *provider) Print(txt string, args ...interface{}) {
 	})
 }
 
-func (p *provider) Model(mtp int, mid string, txt string, args ...interface{}) {
+func (p *provider) Model(mtp ModelType, mid string, txt string, args ...interface{}) {
 	p.stage(&Stage{
 		EnID: mid,
-		Type: mtp,
+		Type: mtp.ID(),
 		Text: fmt.Sprintf(txt, args...),
 	})
 }

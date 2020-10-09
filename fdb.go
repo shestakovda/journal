@@ -105,18 +105,18 @@ func (f *fdbFactory) ByID(id string) (_ Model, err error) {
 	return m, nil
 }
 
-func (f *fdbFactory) ByModel(mtp int, mid string) (res []Model, err error) {
+func (f *fdbFactory) ByModel(mtp ModelType, mid string) (res []Model, err error) {
 	var recs []fdbx.Record
 
 	query := make([]byte, 2+len(mid))
-	binary.BigEndian.PutUint16(query[:2], uint16(mtp))
+	binary.BigEndian.PutUint16(query[:2], uint16(mtp.ID()))
 	copy(query[2:], fdbx.S2B(mid))
 
 	rtp := fdbx.RecordType{ID: IndexJournalEntity, Ver: verJournalV1, New: f.newRecord}
 
 	if recs, err = f.db.Select(rtp, fdbx.Query(query)); err != nil {
 		return nil, errx.ErrInternal.WithReason(err).WithDebug(errx.Debug{
-			"Тип модели":    mtp,
+			"Тип модели":    mtp.String(),
 			"Идентификатор": mid,
 		})
 	}
@@ -154,10 +154,10 @@ func (f *fdbFactory) ByDate(from, to time.Time, page uint, services ...string) (
 	return res, nil
 }
 
-func (f *fdbFactory) ByModelDate(mtp int, mid string,
+func (f *fdbFactory) ByModelDate(mtp ModelType, mid string,
 	from, to time.Time, page uint, services ...string) (_ Cursor, err error) {
 	var mtpb [2]byte
-	binary.BigEndian.PutUint16(mtpb[:], uint16(mtp))
+	binary.BigEndian.PutUint16(mtpb[:], uint16(mtp.ID()))
 
 	res := &fdbCursor{fac: f}
 	rtp := fdbx.RecordType{ID: IndexJournalEntity, Ver: verJournalV1, New: f.newRecord}
@@ -179,7 +179,7 @@ func (f *fdbFactory) ByModelDate(mtp int, mid string,
 			return true, nil
 		})); err != nil {
 		return nil, errx.ErrInternal.WithReason(err).WithDebug(errx.Debug{
-			"Тип модели":      mtp,
+			"Тип модели":      mtp.String(),
 			"Идентификатор":   mid,
 			"От момента":      from.UTC().Format(time.RFC3339Nano),
 			"До момента":      to.UTC().Format(time.RFC3339Nano),

@@ -65,12 +65,17 @@ func (s *InterfaceSuite) TestWorkflow() {
 		log3.Print("ololo %s %d", "test3", 43)
 	}
 
+	mt := &mType{
+		id:   24,
+		name: "event",
+	}
+
 	// Должны записать данные парочке моделей
 	if log.V(0) {
-		log.Model(42, "", "empty %s", "id")
-		log.Model(42, "eventID", "some %s", "comment1")
-		log2.Model(42, "eventID", "some %s", "comment2")
-		log3.Model(42, "eventID", "some %s", "comment3")
+		log.Model(mt, "", "empty %s", "id")
+		log.Model(mt, "eventID", "some %s", "comment1")
+		log2.Model(mt, "eventID", "some %s", "comment2")
+		log3.Model(mt, "eventID", "some %s", "comment3")
 	}
 
 	// Должны записать данные о модели с ошибкой
@@ -104,8 +109,13 @@ func (s *InterfaceSuite) TestWorkflow() {
 			s.Equal("ololo test1 41", api.Name)
 		}
 
+		mtc := &mType{
+			id:   crash.ModelTypeCrash,
+			name: "crash",
+		}
+
 		// Попробуем найти по модели ошибки
-		if mods, exp := fac.ByModel(crash.ModelTypeCrash, rep.ID); s.NoError(exp) && s.Len(mods, 1) {
+		if mods, exp := fac.ByModel(mtc, rep.ID); s.NoError(exp) && s.Len(mods, 1) {
 			if row, err := mods[0].Export(true); s.NoError(err) {
 				s.Equal(entry, row)
 			}
@@ -129,7 +139,7 @@ func (s *InterfaceSuite) TestWorkflow() {
 		}
 
 		// Попробуем найти по модели
-		if cur, exp = fac.ByModelDate(42, "eventID", from, to, 10); s.NoError(exp) {
+		if cur, exp = fac.ByModelDate(mt, "eventID", from, to, 10); s.NoError(exp) {
 			if mods, exp := cur.NextPage(1); s.NoError(exp) && s.Len(mods, 1) {
 				if row, err := mods[0].Export(true); s.NoError(err) {
 					s.Equal(entry3, row)
@@ -167,3 +177,11 @@ func (s *InterfaceSuite) TestWorkflow() {
 
 	s.True(cur.Empty())
 }
+
+type mType struct {
+	id   int
+	name string
+}
+
+func (mt mType) ID() int        { return mt.id }
+func (mt mType) String() string { return mt.name }
