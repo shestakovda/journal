@@ -22,6 +22,8 @@ const (
 )
 
 func init() {
-	RegisterType(ModelTypeUnknown)
-	RegisterType(ModelTypeCrash)
+	RegisterType(
+		ModelTypeUnknown,
+		ModelTypeCrash,
+	)
 }

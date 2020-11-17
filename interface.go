@@ -13,7 +13,13 @@ type ModelType interface {
 }
 
 // RegisterType - регистрация типа для корректной загрузки данных из БД
-func RegisterType(mtp ModelType) { modelTypes[mtp.ID()] = mtp }
+func RegisterType(types ...ModelType) {
+	for _, mtp := range types {
+		if mtp != nil {
+			modelTypes[mtp.ID()] = mtp
+		}
+	}
+}
 
 // Provider сборки и сохранения журнала
 type Provider interface {
