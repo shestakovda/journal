@@ -89,7 +89,7 @@ func (s *InterfaceSuite) TestWorkflow() {
 	var cur journal.Cursor
 
 	// Где-то в другом месте его можно получить по айдишке
-	s.NoError(s.fdb.Tx(func(db fdbx.DB) (exp error) {
+	s.Require().NoError(s.fdb.Tx(func(db fdbx.DB) (exp error) {
 		var mod journal.Model
 
 		fac := journal.NewFactoryFDB(s.fdb, db)
@@ -153,7 +153,7 @@ func (s *InterfaceSuite) TestWorkflow() {
 	s.False(cur.Empty())
 
 	// В след. раз загружаем этот курсор и смотрим, чот там есть
-	s.NoError(s.fdb.Tx(func(db fdbx.DB) (exp error) {
+	s.Require().NoError(s.fdb.Tx(func(db fdbx.DB) (exp error) {
 		fac := journal.NewFactoryFDB(s.fdb, db)
 
 		if _, exp = fac.Cursor(typex.NewUUID().Hex()); s.Error(exp) {

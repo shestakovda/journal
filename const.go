@@ -1,16 +1,8 @@
 package journal
 
-import (
-	"sync"
-
-	"github.com/shestakovda/errx"
-
-	fbs "github.com/google/flatbuffers/go"
-)
+import "github.com/shestakovda/errx"
 
 const verJournalV1 = 1
-
-var fbsPool = sync.Pool{New: func() interface{} { return fbs.NewBuilder(128) }}
 
 const (
 	ModelJournal       uint16 = 36

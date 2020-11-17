@@ -66,28 +66,28 @@ func (s *InterfaceSuite) TestWorkflow() {
 	report2 := s.prv.Report(err)
 
 	// Теперь можно сохранить его где-то дальше в какой-то транзакции
-	s.NoError(s.fdb.Tx(func(db fdbx.DB) error {
+	s.Require().NoError(s.fdb.Tx(func(db fdbx.DB) error {
 		return crash.NewFactoryFDB(db).New().Import(report)
 	}))
 
 	// Где-то в другом месте его можно получить по айдишке
 	// Попутно сохраним еще одну ошибку, чтобы их в списке было две
 	var mod crash.Model
-	s.NoError(s.fdb.Tx(func(db fdbx.DB) (exp error) {
+	s.Require().NoError(s.fdb.Tx(func(db fdbx.DB) (exp error) {
 		fac := crash.NewFactoryFDB(db)
 
 		if mod, exp = fac.ByID(report.ID); s.NoError(exp) {
 			return fac.New().Import(report2)
 		}
 
-		return nil
+		return exp
 	}))
 
 	// По крайней мере, их внешние представления должны совпадать
 	s.Equal(report.AsRFC(), mod.ExportRFC())
 
 	// Должно быть можно получить по коду (в т.ч. его части) и дате
-	s.NoError(s.fdb.Tx(func(db fdbx.DB) (exp error) {
+	s.Require().NoError(s.fdb.Tx(func(db fdbx.DB) (exp error) {
 		code := "testing4034"
 		from := time.Now().Add(-time.Hour)
 		to := time.Now().Add(time.Hour)

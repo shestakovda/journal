@@ -399,12 +399,9 @@ func (m *fdbModel) FdbxMarshal() ([]byte, error) {
 		}
 	}
 
-	buf := fbsPool.Get().(*fbs.Builder)
+	buf := fbs.NewBuilder(1024)
 	buf.Finish(rec.Pack(buf))
-	res := buf.FinishedBytes()
-	buf.Reset()
-	fbsPool.Put(buf)
-	return res, nil
+	return buf.FinishedBytes(), nil
 }
 
 func (m *fdbModel) FdbxUnmarshal(buf []byte) error {
