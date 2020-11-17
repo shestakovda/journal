@@ -116,12 +116,12 @@ func (p *provider) Clone() Provider { return NewProvider(p.max, p.crp, p.drv, p.
 func (p *provider) stage(s *Stage) {
 	if s.Fail != nil {
 		s.EnID = s.Fail.ID
-		s.Type = crash.ModelTypeCrash
+		s.Type = ModelTypeCrash.ID()
 		s.Text = fmt.Sprintf("[ %d ] %s", s.Fail.Status, s.Fail.Title)
 	}
 
 	if s.EnID == "" {
-		s.Type = crash.ModelTypeUnknown
+		s.Type = ModelTypeUnknown.ID()
 	}
 
 	p.Lock()
@@ -130,7 +130,7 @@ func (p *provider) stage(s *Stage) {
 	s.Verb = p.lvl
 	s.Wait = time.Since(p.point)
 	p.point = time.Now()
-	p.crash = p.crash || s.Type == crash.ModelTypeCrash
+	p.crash = p.crash || s.Type == ModelTypeCrash.ID()
 	p.chain = append(p.chain, s)
 	p.lvl = 0
 }

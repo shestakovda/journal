@@ -10,9 +10,6 @@ var DatabaseAPI uint16 = 1
 const BlankLink = "about:blank"
 const EnvBaseURL = "ERR_BASE_URL"
 
-const ModelTypeUnknown int = 0
-const ModelTypeCrash int = 1
-
 const (
 	ModelCrash        uint16 = 32
 	IndexCrashCreated uint16 = 33

@@ -275,7 +275,7 @@ func (m *fdbModel) Export(withCrash bool) (e *Entry, err error) {
 			Type: int(m.chain[i].enTP),
 		}
 
-		if withCrash && e.Chain[i].Type == crash.ModelTypeCrash {
+		if withCrash && e.Chain[i].Type == ModelTypeCrash.ID() {
 			if crm, err = crash.NewFactoryFDB(m.fac.db).ByID(e.Chain[i].EnID); err != nil {
 				return nil, ErrSelect.WithReason(err)
 			}
@@ -330,11 +330,14 @@ func (m *fdbModel) ExportMonitoring(log Provider) *ViewMonitoring {
 				Wait: time.Duration(m.chain[i].wait).String(),
 			}
 
-			mt := int(m.chain[i].enTP)
-
-			if mt != crash.ModelTypeUnknown {
-				stages[i].Type = strconv.Itoa(mt)
+			if mt := int(m.chain[i].enTP); m.chain[i].enID != "" {
 				stages[i].EnID = m.chain[i].enID
+
+				if mtp := modelTypes[mt]; mtp != nil {
+					stages[i].Type = mtp.String()
+				} else {
+					stages[i].Type = strconv.Itoa(mt)
+				}
 			}
 		}
 	}

@@ -66,9 +66,11 @@ func (s *InterfaceSuite) TestWorkflow() {
 	}
 
 	mt := &mType{
-		id:   24,
+		id:   36,
 		name: "event",
 	}
+
+	journal.RegisterType(mt)
 
 	// Должны записать данные парочке моделей
 	if log.V(0) {
@@ -107,15 +109,22 @@ func (s *InterfaceSuite) TestWorkflow() {
 			s.Equal(row.ID, api.ID)
 			s.Equal(row.Total, api.Total)
 			s.Equal("ololo test1 41", api.Name)
-		}
 
-		mtc := &mType{
-			id:   crash.ModelTypeCrash,
-			name: "crash",
+			// Сравним, как это выгружается в формате мониторинга
+			mon := mod.ExportMonitoring(log)
+			s.Equal(row.ID, mon.ID)
+			s.Equal(row.Total.String(), mon.Total)
+			s.Equal("ololo test1 41", mon.Name)
+			s.Equal("", mon.Stages[0].Type)
+			s.Equal("", mon.Stages[0].EnID)
+			s.Equal("event", mon.Stages[2].Type)
+			s.Equal("eventID", mon.Stages[2].EnID)
+			s.Equal("crash", mon.Stages[3].Type)
+			s.Equal(rep.ID, mon.Stages[3].EnID)
 		}
 
 		// Попробуем найти по модели ошибки
-		if mods, exp := fac.ByModel(mtc, rep.ID); s.NoError(exp) && s.Len(mods, 1) {
+		if mods, exp := fac.ByModel(journal.ModelTypeCrash, rep.ID); s.NoError(exp) && s.Len(mods, 1) {
 			if row, err := mods[0].Export(true); s.NoError(err) {
 				s.Equal(entry, row)
 			}

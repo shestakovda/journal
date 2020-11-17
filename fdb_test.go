@@ -37,14 +37,14 @@ func (s *FdbSuite) SetupTest() {
 				Text: "text2",
 				Wait: time.Minute,
 				Verb: 1,
-				Type: crash.ModelTypeUnknown,
+				Type: ModelTypeUnknown.ID(),
 			},
 			{
 				EnID: failID,
 				Text: assert.AnError.Error(),
 				Wait: time.Millisecond,
 				Verb: 1,
-				Type: crash.ModelTypeCrash,
+				Type: ModelTypeCrash.ID(),
 				Fail: &crash.Report{
 					ID:      failID,
 					Link:    "Link",

@@ -6,10 +6,14 @@ import (
 	"github.com/shestakovda/journal/crash"
 )
 
+// ModelType - абстрактный тип модели для логирования
 type ModelType interface {
 	ID() int
 	String() string
 }
+
+// RegisterType - регистрация типа для корректной загрузки данных из БД
+func RegisterType(mtp ModelType) { modelTypes[mtp.ID()] = mtp }
 
 // Provider сборки и сохранения журнала
 type Provider interface {
