@@ -328,6 +328,7 @@ func (m *fdbModel) ExportMonitoring(log Provider) *ViewMonitoring {
 			stages[i] = &StageMonitoring{
 				Name: m.chain[i].text,
 				Wait: time.Duration(m.chain[i].wait).String(),
+				Time: m.chain[i].wait,
 			}
 
 			if mt := int(m.chain[i].enTP); m.chain[i].enID != "" {
@@ -347,6 +348,7 @@ func (m *fdbModel) ExportMonitoring(log Provider) *ViewMonitoring {
 		Start:   time.Unix(0, int64(m.start)).UTC(),
 		Total:   time.Duration(m.total).String(),
 		Name:    name,
+		Time:    m.total,
 		Stages:  stages,
 		Service: m.service,
 	}

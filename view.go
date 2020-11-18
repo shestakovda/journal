@@ -126,6 +126,7 @@ type ViewMonitoring struct {
 	Name    string             `json:"name"`
 	User    string             `json:"user,omitempty"`
 	Start   time.Time          `json:"start"`
+	Time    uint64             `json:"time"`
 	Tags    map[string]string  `json:"tags,omitempty"`
 	Keys    map[string]string  `json:"keys,omitempty"`
 	Stages  []*StageMonitoring `json:"stages"`
@@ -134,6 +135,7 @@ type ViewMonitoring struct {
 type StageMonitoring struct {
 	Wait string `json:"wait"`
 	Name string `json:"name"`
+	Time uint64 `json:"time"`
 	Type string `json:"type,omitempty"`
 	EnID string `json:"enid,omitempty"`
 }
