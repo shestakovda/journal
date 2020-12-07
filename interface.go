@@ -3,8 +3,32 @@ package journal
 import (
 	"time"
 
+	"github.com/shestakovda/fdbx/v2/db"
+	"github.com/shestakovda/fdbx/v2/mvcc"
 	"github.com/shestakovda/journal/crash"
 )
+
+// Типы для моделей по-умолчанию
+const (
+	ModelTypeUnknown journalModels = 0
+	ModelTypeCrash   journalModels = 1
+)
+
+// Константы индексов
+const (
+	IndexFdbxStart uint16 = 0x0037
+	IndexFdbxModel uint16 = 0x0038
+)
+
+// NewFdbxFactory - конструктор фабрики для загрузки через fdbx/v2
+func NewFdbxFactory(tx mvcc.Tx, journalID, crashID uint16) Factory {
+	return newFdbxFactory(tx, journalID, crashID)
+}
+
+// NewFdbxDriver - конструктор драйвера для сохранения через fdbx/v2
+func NewFdbxDriver(dbc db.Connection, journalID, crashID uint16) Driver {
+	return newFdbxDriver(dbc, journalID, crashID)
+}
 
 // ModelType - абстрактный тип модели для логирования
 type ModelType interface {
@@ -13,25 +37,10 @@ type ModelType interface {
 }
 
 // RegisterType - регистрация типа для корректной загрузки данных из БД
-func RegisterType(types ...ModelType) {
-	for _, mtp := range types {
-		if mtp != nil {
-			modelTypes[mtp.ID()] = mtp
-		}
-	}
-}
+func RegisterType(types ...ModelType) { regType(types...) }
 
 // Provider сборки и сохранения журнала
 type Provider interface {
-	/*
-		V - проверка уровня логирования.
-
-		* Принимает необходимый уровень, с которым планируется запись
-		* Разрешает запись, если указанный уровень меньше или равен максимальному, заданному в конструкторе
-		* Имеет сайдэффект - устанавливает указанный уровень как текущий на одну (!) следующую операцию
-	*/
-	V(int) bool
-
 	/*
 		Print - простая текстовая запись, для отладки или обозначения контрольной точки в процессе.
 
@@ -109,8 +118,19 @@ type Factory interface {
 	*/
 	ByModel(mtp ModelType, mid string) ([]Model, error)
 
+	/*
+		Cursor - загрузка существующего курсора
+	*/
 	Cursor(id string) (_ Cursor, err error)
+
+	/*
+		ByDate - формирование курсора перебора по дате
+	*/
 	ByDate(from, to time.Time, page uint, services ...string) (_ Cursor, err error)
+
+	/*
+		ByModelDate - формирование курсора перебора по модели и дате
+	*/
 	ByModelDate(mtp ModelType, mid string, from, to time.Time, page uint, services ...string) (_ Cursor, err error)
 }
 

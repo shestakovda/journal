@@ -1,6 +1,24 @@
 package journal
 
+import "strconv"
+
 var modelTypes = make(map[int]ModelType, 64)
+
+func getType(id int) ModelType {
+	if mtp := modelTypes[id]; mtp != nil {
+		return mtp
+	}
+
+	return new(journalModels)
+}
+
+func regType(types ...ModelType) {
+	for _, mtp := range types {
+		if mtp != nil {
+			modelTypes[mtp.ID()] = mtp
+		}
+	}
+}
 
 type journalModels int
 
@@ -12,17 +30,12 @@ func (m journalModels) String() string {
 	case ModelTypeCrash:
 		return "crash"
 	default:
-		return "unknown"
+		return strconv.Itoa(int(m))
 	}
 }
 
-const (
-	ModelTypeUnknown journalModels = 0
-	ModelTypeCrash   journalModels = 1
-)
-
 func init() {
-	RegisterType(
+	regType(
 		ModelTypeUnknown,
 		ModelTypeCrash,
 	)

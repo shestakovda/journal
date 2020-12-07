@@ -1,3 +1,5 @@
+.PHONY: models
+
 all: test
 
 models:

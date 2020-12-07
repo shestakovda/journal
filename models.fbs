@@ -19,3 +19,17 @@ table Journal {
     Chain:[Stage];
     Service:string;
 }
+
+table FdbxStage {
+    dur:int64;
+    mtp:int32;
+    mid:string;
+    msg:string;
+}
+
+table FdbxJournal {
+    start:int64;
+    total:int64;
+    chain:[FdbxStage];
+    service:string;
+}

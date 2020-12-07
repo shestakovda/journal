@@ -297,11 +297,9 @@ func (m *fdbModel) ExportAPI(log Provider) *API {
 			name = m.chain[i].text
 		}
 
-		if log.V(int(m.chain[i].verb)) {
-			stages[i] = &StageAPI{
-				Name: m.chain[i].text,
-				Wait: time.Duration(m.chain[i].wait),
-			}
+		stages[i] = &StageAPI{
+			Name: m.chain[i].text,
+			Wait: time.Duration(m.chain[i].wait),
 		}
 	}
 
@@ -324,21 +322,19 @@ func (m *fdbModel) ExportMonitoring(log Provider) *ViewMonitoring {
 			name = m.chain[i].text
 		}
 
-		if log.V(int(m.chain[i].verb)) {
-			stages[i] = &StageMonitoring{
-				Name: m.chain[i].text,
-				Wait: time.Duration(m.chain[i].wait).String(),
-				Time: m.chain[i].wait,
-			}
+		stages[i] = &StageMonitoring{
+			Name: m.chain[i].text,
+			Wait: time.Duration(m.chain[i].wait).String(),
+			Time: m.chain[i].wait,
+		}
 
-			if mt := int(m.chain[i].enTP); m.chain[i].enID != "" {
-				stages[i].EnID = m.chain[i].enID
+		if mt := int(m.chain[i].enTP); m.chain[i].enID != "" {
+			stages[i].EnID = m.chain[i].enID
 
-				if mtp := modelTypes[mt]; mtp != nil {
-					stages[i].Type = mtp.String()
-				} else {
-					stages[i].Type = strconv.Itoa(mt)
-				}
+			if mtp := modelTypes[mt]; mtp != nil {
+				stages[i].Type = mtp.String()
+			} else {
+				stages[i].Type = strconv.Itoa(mt)
 			}
 		}
 	}

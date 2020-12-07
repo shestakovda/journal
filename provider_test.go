@@ -45,21 +45,10 @@ func (s *ProviderSuite) TestPrint() {
 		name: "event",
 	}
 
-	// Не должны сюда попасть
-	if s.prv.V(2) {
-		s.True(false)
-	}
-
-	// Должны попасть и записать строку
-	if s.prv.V(1) {
-		s.prv.Print("ololo %s %d", "test", 42)
-	}
-
 	// Должны записать данные парочке моделей
-	if s.prv.V(0) {
-		s.prv.Model(mt, "", "empty %s", "id")
-		s.prv.Model(mt, "eventID", "some %s", "comment")
-	}
+	s.prv.Print("ololo %s %d", "test", 42)
+	s.prv.Model(mt, "", "empty %s", "id")
+	s.prv.Model(mt, "eventID", "some %s", "comment")
 
 	// Должны записать данные о модели с ошибкой
 	s.prv.Crash(ErrTest.WithReason(errx.ErrForbidden))
