@@ -22,7 +22,15 @@ func loadFdbxCursor(fac *fdbxFactory, qid string) (cur *fdbxCursor, err error) {
 	}
 
 	if cur.que, err = fac.tbl.Cursor(fac.tx, qid); err != nil {
-		return
+		if errx.Is(err, orm.ErrNotFound) {
+			return nil, errx.ErrNotFound.WithReason(err).WithDebug(errx.Debug{
+				"Курсор": qid,
+			})
+		}
+
+		return nil, errx.ErrInternal.WithReason(err).WithDebug(errx.Debug{
+			"Курсор": qid,
+		})
 	}
 
 	return cur, nil
@@ -47,15 +55,18 @@ func (c *fdbxCursor) Empty() bool {
 func (c *fdbxCursor) NextPage(size uint, services ...string) (res []Model, err error) {
 	var rows []fdbx.Pair
 
-	if rows, err = c.que.Where(filterByService(services)).Page(int(size)).Next(); err != nil {
+	if len(services) > 0 {
+		c.que = c.que.Where(filterByService(services))
+	}
+
+	if rows, err = c.que.Page(int(size)).Next(); err != nil {
 		return nil, errx.ErrInternal.WithReason(err).WithDebug(errx.Debug{
 			"Сервисы": services,
 		})
 	}
 
-	if len(rows) == 0 {
+	if len(rows) < int(size) {
 		c.empty = true
-		return nil, nil
 	}
 
 	res = make([]Model, len(rows))

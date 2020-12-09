@@ -41,6 +41,10 @@ github.com/shestakovda/fdbx/v2 v2.0.0-prerelease.6 h1:4GyHLF5a1Tl4AesbydWhnZFjG5
 github.com/shestakovda/fdbx/v2 v2.0.0-prerelease.6/go.mod h1:wK2padRSHQ6O0xWanG1A7Ag/NL/chQGq3w9SF8pTI+w=
 github.com/shestakovda/fdbx/v2 v2.0.0-prerelease.8 h1:W/GO84HuIT47JNWMt9BeKK2vn0fOtcSqfZJYDmvKj90=
 github.com/shestakovda/fdbx/v2 v2.0.0-prerelease.8/go.mod h1:wK2padRSHQ6O0xWanG1A7Ag/NL/chQGq3w9SF8pTI+w=
+github.com/shestakovda/fdbx/v2 v2.0.0-prerelease.9 h1:/znMkS4veovNJlX6C8cyFR7ljp/1xYUKrEhxoO2uwGI=
+github.com/shestakovda/fdbx/v2 v2.0.0-prerelease.9/go.mod h1:wK2padRSHQ6O0xWanG1A7Ag/NL/chQGq3w9SF8pTI+w=
+github.com/shestakovda/fdbx/v2 v2.0.0-prerelease.10 h1:xCGWotQy74Fo0cYRg5XURTIJKC4flsv+YZwY2U4w4mo=
+github.com/shestakovda/fdbx/v2 v2.0.0-prerelease.10/go.mod h1:wK2padRSHQ6O0xWanG1A7Ag/NL/chQGq3w9SF8pTI+w=
 github.com/shestakovda/typex v1.0.0 h1:8e5Jgc7dS6EIaAT8z+KI6oNlop/HbRfcOQvN7vEs7Bc=
 github.com/shestakovda/typex v1.0.0/go.mod h1:Pjz2Ikohi4w39r4psqbBPD2THJhhiv6b7QUxtem+IZg=
 github.com/sony/sonyflake v1.0.0 h1:MpU6Ro7tfXwgn2l5eluf9xQvQJDROTBImNCfRXn/YeM=

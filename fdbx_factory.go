@@ -15,8 +15,8 @@ import (
 func newFdbxFactory(tx mvcc.Tx, journalID, crashID uint16) *fdbxFactory {
 	return &fdbxFactory{
 		tx:  tx,
-		tbl: orm.NewTable(journalID),
 		crf: crash.NewFdbxFactory(tx, crashID),
+		tbl: orm.NewTable(journalID, orm.BatchIndex(idxJournal)),
 	}
 }
 
@@ -54,7 +54,11 @@ func (f *fdbxFactory) ByID(id string) (_ Model, err error) {
 func (f *fdbxFactory) ByModel(mtp ModelType, mid string) (res []Model, err error) {
 	var rows []fdbx.Pair
 
-	if rows, err = f.tbl.Select(f.tx).ByIndex(IndexFdbxModel, fdbx.String2Key(mid)).All(); err != nil {
+	entp := make([]byte, 4)
+	binary.BigEndian.PutUint32(entp, uint32(mtp.ID()))
+	query := fdbx.String2Key(mid).LPart(entp...)
+
+	if rows, err = f.tbl.Select(f.tx).ByIndex(IndexModel, query).All(); err != nil {
 		return nil, errx.ErrInternal.WithReason(err).WithDebug(errx.Debug{
 			"Тип модели":    mtp.String(),
 			"Идентификатор": mid,
@@ -76,8 +80,8 @@ func (f *fdbxFactory) Cursor(id string) (Cursor, error) {
 func (f *fdbxFactory) ByDate(from, last time.Time, page uint, services ...string) (_ Cursor, err error) {
 	var qid string
 
-	que := f.tbl.Select(f.tx).Page(int(page)).ByIndexRange(
-		IndexFdbxStart,
+	que := f.tbl.Select(f.tx).Page(int(page)).Reverse().ByIndexRange(
+		IndexStart,
 		fdbx.Bytes2Key(fdbx.Time2Byte(from)),
 		fdbx.Bytes2Key(fdbx.Time2Byte(last)),
 	)
@@ -102,12 +106,13 @@ func (f *fdbxFactory) ByModelDate(
 	_ ...string,
 ) (_ Cursor, err error) {
 	var qid string
-	var tpb [2]byte
-	binary.BigEndian.PutUint16(tpb[:], uint16(mtp.ID()))
 
-	key := fdbx.Bytes2Key(tpb[:]).RPart([]byte(mid)...)
-	que := f.tbl.Select(f.tx).Page(int(page)).ByIndexRange(
-		IndexFdbxModel,
+	entp := make([]byte, 4)
+	binary.BigEndian.PutUint32(entp, uint32(mtp.ID()))
+
+	key := fdbx.String2Key(mid).LPart(entp...)
+	que := f.tbl.Select(f.tx).Page(int(page)).Reverse().ByIndexRange(
+		IndexModel,
 		key.RPart(fdbx.Time2Byte(from)...),
 		key.RPart(fdbx.Time2Byte(last)...),
 	)

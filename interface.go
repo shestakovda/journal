@@ -16,8 +16,8 @@ const (
 
 // Константы индексов
 const (
-	IndexFdbxStart uint16 = 0x0037
-	IndexFdbxModel uint16 = 0x0038
+	IndexStart uint16 = 0x0001
+	IndexModel uint16 = 0x0002
 )
 
 // NewFdbxFactory - конструктор фабрики для загрузки через fdbx/v2

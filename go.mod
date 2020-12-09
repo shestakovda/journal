@@ -9,7 +9,7 @@ require (
 	github.com/shestakovda/envx v1.0.0
 	github.com/shestakovda/errx v1.2.0
 	github.com/shestakovda/fdbx v0.3.9
-	github.com/shestakovda/fdbx/v2 v2.0.0-prerelease.8
+	github.com/shestakovda/fdbx/v2 v2.0.0-prerelease.10
 	github.com/shestakovda/typex v1.0.0
 	github.com/stretchr/testify v1.6.1
 )

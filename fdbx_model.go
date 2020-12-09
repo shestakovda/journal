@@ -22,7 +22,7 @@ func loadFdbxModel(fac *fdbxFactory, uid typex.UUID, buf []byte) *fdbxModel {
 		uid:   uid,
 		fac:   fac,
 		sid:   obj.Service,
-		start: time.Unix(0, obj.Start),
+		start: time.Unix(0, obj.Start).UTC(),
 		total: time.Duration(obj.Total),
 		chain: make([]*fdbxStage, len(obj.Chain)),
 	}
@@ -133,7 +133,7 @@ func (m *fdbxModel) ExportMonitoring(log Provider) (v *ViewMonitoring) {
 	return v
 }
 
-func (m *fdbxModel) dump() *models.FdbxJournalT {
+func (m *fdbxModel) save() (err error) {
 	obj := &models.FdbxJournalT{
 		Service: m.sid,
 		Total:   int64(m.total),
@@ -145,15 +145,7 @@ func (m *fdbxModel) dump() *models.FdbxJournalT {
 		obj.Chain[i] = m.chain[i].dump()
 	}
 
-	return obj
-}
-
-func (m *fdbxModel) save() (err error) {
-
-	if err = m.fac.tbl.Upsert(m.fac.tx, fdbx.NewPair(
-		fdbx.Bytes2Key(m.uid),
-		fdbx.FlatPack(m.dump()),
-	)); err != nil {
+	if err = m.fac.tbl.Upsert(m.fac.tx, fdbx.NewPair(fdbx.Bytes2Key(m.uid), fdbx.FlatPack(obj))); err != nil {
 		return ErrInsert.WithReason(err)
 	}
 

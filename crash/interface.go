@@ -1,6 +1,18 @@
 package crash
 
-import "time"
+import (
+	"time"
+
+	"github.com/shestakovda/fdbx/v2/mvcc"
+)
+
+// Номера индексов
+const (
+	IndexDate uint16 = 0x0001
+	IndexCode uint16 = 0x0002
+)
+
+func NewFdbxFactory(tx mvcc.Tx, crashID uint16) Factory { return newFdbxFactory(tx, crashID) }
 
 /*
 	Provider - менеджер регистрации внешних ошибок системы.

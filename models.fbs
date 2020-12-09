@@ -33,3 +33,24 @@ table FdbxJournal {
     chain:[FdbxStage];
     service:string;
 }
+
+table FdbxDebug {
+    name:string;
+    text:string;
+}
+
+table FdbxStep {
+    text:string;
+    detail:string;
+    stack:[string];
+    debug:[FdbxDebug];
+}
+
+table FdbxCrash {
+    code:string;
+    link:string;
+    title:string;
+    status:uint16;
+    created:int64;
+    steps:[FdbxStep];
+}
