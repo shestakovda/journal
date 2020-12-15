@@ -51,19 +51,8 @@ type fdbxModel struct {
 }
 
 func (m *fdbxModel) Import(r *Report) (err error) {
-	if m.uid, err = typex.ParseUUID(r.ID); err != nil {
-		return ErrIDValidate.WithReason(err)
-	}
-
-	m.code = r.Code
-	m.link = r.Link
-	m.title = r.Title
-	m.status = r.Status
-	m.created = r.Created.UTC()
-	m.steps = make([]*fdbxStep, len(r.Entries))
-
-	for i := range r.Entries {
-		m.steps[i] = fdbxNewStep(r.Entries[i])
+	if err = m.setReport(r); err != nil {
+		return
 	}
 
 	return m.save()
@@ -130,21 +119,47 @@ func (m *fdbxModel) ExportRFC() *RFC {
 	return res
 }
 
-func (m *fdbxModel) save() (err error) {
+func (m *fdbxModel) setReport(r *Report) (err error) {
+	if m.uid, err = typex.ParseUUID(r.ID); err != nil {
+		return ErrIDValidate.WithReason(err)
+	}
+
+	m.code = r.Code
+	m.link = r.Link
+	m.title = r.Title
+	m.status = r.Status
+	m.created = r.Created.UTC()
+	m.steps = make([]*fdbxStep, len(r.Entries))
+
+	for i := range r.Entries {
+		m.steps[i] = fdbxNewStep(r.Entries[i])
+	}
+
+	return nil
+}
+
+func (m *fdbxModel) pair() fdbx.Pair {
 	obj := &models.FdbxCrashT{
-		Code:    m.code,
-		Link:    m.link,
-		Title:   m.title,
-		Status:  m.status,
-		Created: m.created.UTC().UnixNano(),
-		Steps:   make([]*models.FdbxStepT, len(m.steps)),
+		Code:   m.code,
+		Link:   m.link,
+		Title:  m.title,
+		Status: m.status,
+		Steps:  make([]*models.FdbxStepT, len(m.steps)),
+	}
+
+	if !m.created.IsZero() {
+		obj.Created = m.created.UTC().UnixNano()
 	}
 
 	for i := range m.steps {
 		obj.Steps[i] = m.steps[i].dump()
 	}
 
-	if err = m.fac.tbl.Upsert(m.fac.tx, fdbx.NewPair(fdbx.Bytes2Key(m.uid), fdbx.FlatPack(obj))); err != nil {
+	return fdbx.NewPair(fdbx.Bytes2Key(m.uid), fdbx.FlatPack(obj))
+}
+
+func (m *fdbxModel) save() (err error) {
+	if err = m.fac.tbl.Upsert(m.fac.tx, m.pair()); err != nil {
 		return ErrInsert.WithReason(err)
 	}
 

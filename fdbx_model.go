@@ -45,22 +45,15 @@ type fdbxModel struct {
 }
 
 func (m *fdbxModel) Import(e *Entry) (err error) {
-	if m.uid, err = typex.ParseUUID(e.ID); err != nil {
-		return ErrValidate.WithReason(err).WithDetail("Некорректный формат идентификатора")
+	var reps []*crash.Report
+
+	if reps, err = m.setEntry(e); err != nil {
+		return
 	}
 
-	m.sid = e.Service
-	m.total = e.Total
-	m.start = e.Start.UTC()
-	m.chain = make([]*fdbxStage, len(e.Chain))
-
-	for i := range e.Chain {
-		m.chain[i] = newFdbxStage(e.Chain[i])
-
-		if e.Chain[i].Fail != nil {
-			if err = m.fac.crf.New().Import(e.Chain[i].Fail); err != nil {
-				return ErrInsert.WithReason(err)
-			}
+	if len(reps) > 0 {
+		if err = m.fac.crf.ImportReports(reps...); err != nil {
+			return ErrInsert.WithReason(err)
 		}
 	}
 
@@ -133,7 +126,29 @@ func (m *fdbxModel) ExportMonitoring(log Provider) (v *ViewMonitoring) {
 	return v
 }
 
-func (m *fdbxModel) save() (err error) {
+func (m *fdbxModel) setEntry(e *Entry) (reps []*crash.Report, err error) {
+	if m.uid, err = typex.ParseUUID(e.ID); err != nil {
+		return nil, ErrValidate.WithReason(err).WithDetail("Некорректный формат идентификатора")
+	}
+
+	m.sid = e.Service
+	m.total = e.Total
+	m.start = e.Start.UTC()
+	m.chain = make([]*fdbxStage, len(e.Chain))
+
+	reps = make([]*crash.Report, 0, len(e.Chain))
+	for i := range e.Chain {
+		m.chain[i] = newFdbxStage(e.Chain[i])
+
+		if e.Chain[i].Fail != nil {
+			reps = append(reps, e.Chain[i].Fail)
+		}
+	}
+
+	return reps, nil
+}
+
+func (m *fdbxModel) pair() fdbx.Pair {
 	obj := &models.FdbxJournalT{
 		Service: m.sid,
 		Total:   int64(m.total),
@@ -145,7 +160,11 @@ func (m *fdbxModel) save() (err error) {
 		obj.Chain[i] = m.chain[i].dump()
 	}
 
-	if err = m.fac.tbl.Upsert(m.fac.tx, fdbx.NewPair(fdbx.Bytes2Key(m.uid), fdbx.FlatPack(obj))); err != nil {
+	return fdbx.NewPair(fdbx.Bytes2Key(m.uid), fdbx.FlatPack(obj))
+}
+
+func (m *fdbxModel) save() (err error) {
+	if err = m.fac.tbl.Upsert(m.fac.tx, m.pair()); err != nil {
 		return ErrInsert.WithReason(err)
 	}
 

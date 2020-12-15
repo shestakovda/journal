@@ -190,6 +190,10 @@ func (f *fdbFactory) ByModelDate(mtp ModelType, mid string,
 	return res, nil
 }
 
+func (f *fdbFactory) ImportEntries(...*Entry) error {
+	return errx.ErrNotImplemented.WithStack()
+}
+
 func (f *fdbFactory) recs2list(recs []fdbx.Record) []Model {
 	res := make([]Model, len(recs))
 	for i := range recs {

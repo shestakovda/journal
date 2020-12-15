@@ -102,6 +102,10 @@ func (f *fdbFactory) ByDateCode(from, to time.Time, code string) (_ []Model, err
 	return mods, nil
 }
 
+func (f *fdbFactory) ImportReports(reports ...*Report) (err error) {
+	return errx.ErrNotImplemented.WithStack()
+}
+
 func (f *fdbFactory) newRecord(ver uint8, id string) (fdbx.Record, error) {
 	return &fdbModel{ID: id, fac: f}, nil
 }

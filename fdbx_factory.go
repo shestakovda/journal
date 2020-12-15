@@ -129,3 +129,32 @@ func (f *fdbxFactory) ByModelDate(
 
 	return newFdbxCursor(f, qid, que), nil
 }
+
+func (f *fdbxFactory) ImportEntries(entries ...*Entry) (err error) {
+	var mod *fdbxModel
+	var reps []*crash.Report
+
+	rows := make([]fdbx.Pair, len(entries))
+	fails := make([]*crash.Report, 0, len(entries))
+
+	for i := range entries {
+		mod = newFdbxModel(f)
+
+		if reps, err = mod.setEntry(entries[i]); err != nil {
+			return
+		}
+
+		rows[i] = mod.pair()
+		fails = append(fails, reps...)
+	}
+
+	if err = f.crf.ImportReports(fails...); err != nil {
+		return ErrInsert.WithReason(err)
+	}
+
+	if err = f.tbl.Upsert(f.tx, rows...); err != nil {
+		return ErrInsert.WithReason(err)
+	}
+
+	return nil
+}

@@ -72,3 +72,25 @@ func (f *fdbxFactory) ByDateCode(from, last time.Time, code string) (res []Model
 
 	return res, nil
 }
+
+func (f *fdbxFactory) ImportReports(reports ...*Report) (err error) {
+	var mod *fdbxModel
+
+	rows := make([]fdbx.Pair, len(reports))
+
+	for i := range reports {
+		mod = newFdbxModel(f)
+
+		if err = mod.setReport(reports[i]); err != nil {
+			return
+		}
+
+		rows[i] = mod.pair()
+	}
+
+	if err = f.tbl.Upsert(f.tx, rows...); err != nil {
+		return ErrInsert.WithReason(err)
+	}
+
+	return nil
+}

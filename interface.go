@@ -132,6 +132,11 @@ type Factory interface {
 		ByModelDate - формирование курсора перебора по модели и дате
 	*/
 	ByModelDate(mtp ModelType, mid string, from, to time.Time, page uint, services ...string) (_ Cursor, err error)
+
+	/*
+		ImportEntries - массовая загрузка сразу нескольких моделей
+	*/
+	ImportEntries(...*Entry) error
 }
 
 // Model - запись журнала в БД

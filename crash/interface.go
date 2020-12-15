@@ -65,6 +65,11 @@ type Factory interface {
 		* Если не указывать код, тогда фильтрация только по дате
 	*/
 	ByDateCode(from, to time.Time, code string) ([]Model, error)
+
+	/*
+		ImportReports - массовая загрузка сразу нескольких отчетов
+	*/
+	ImportReports(...*Report) error
 }
 
 // Model - запись ошибки в БД
