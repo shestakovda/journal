@@ -20,18 +20,9 @@ type fdbxDriver struct {
 }
 
 func (d fdbxDriver) InsertEntry(e *Entry) (err error) {
-	var tx mvcc.Tx
-
-	if tx, err = mvcc.Begin(d.dbc); err != nil {
-		return ErrInsert.WithReason(err)
-	}
-	defer tx.Cancel()
-
-	if err = newFdbxFactory(tx, d.jid, d.cid).New().Import(e); err != nil {
-		return ErrInsert.WithReason(err)
-	}
-
-	if err = tx.Commit(); err != nil {
+	if err = mvcc.WithTx(d.dbc, func(tx mvcc.Tx) error {
+		return newFdbxFactory(tx, d.jid, d.cid).New().Import(e)
+	}); err != nil {
 		return ErrInsert.WithReason(err)
 	}
 

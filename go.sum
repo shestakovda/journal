@@ -28,6 +28,8 @@ github.com/pmezard/go-difflib v1.0.0 h1:4DBwDE0NGyQoBHbLQYPwSUPoCMWR5BEzIk/f1lZb
 github.com/pmezard/go-difflib v1.0.0/go.mod h1:iKH77koFhYxTK1pcRnkKkqfTogsbg7gZNVY4sRDYZ/4=
 github.com/shestakovda/envx v1.0.0 h1:77NtN5NMBk9o2LSbKB5BXXBj3It9vFS974hC58DVE/s=
 github.com/shestakovda/envx v1.0.0/go.mod h1:tPHNmZNv+YNcm8+L85t/hgppXO7som1jSZROe3pCJhw=
+github.com/shestakovda/envx v1.0.1 h1:5bDhFI0fxZFEj0WnZi7Cm8aaPDfSO7sCUsiJbif5TzU=
+github.com/shestakovda/envx v1.0.1/go.mod h1:tPHNmZNv+YNcm8+L85t/hgppXO7som1jSZROe3pCJhw=
 github.com/shestakovda/errx v1.1.0 h1:7SOCvO68pRJaV9cxTqubRwXmKg9q/GfsqGEk3AZejdE=
 github.com/shestakovda/errx v1.1.0/go.mod h1:cxizHrHH11MxuQxNPGqnPvdVwrZZbcZytfPZ21sm/0I=
 github.com/shestakovda/errx v1.1.1 h1:8HBcZr8I/nPNiJDIyuAUX1IvNRKTj9Doc+yD9+ofdTc=
@@ -45,8 +47,12 @@ github.com/shestakovda/fdbx/v2 v2.0.0-prerelease.9 h1:/znMkS4veovNJlX6C8cyFR7ljp
 github.com/shestakovda/fdbx/v2 v2.0.0-prerelease.9/go.mod h1:wK2padRSHQ6O0xWanG1A7Ag/NL/chQGq3w9SF8pTI+w=
 github.com/shestakovda/fdbx/v2 v2.0.0-prerelease.10 h1:xCGWotQy74Fo0cYRg5XURTIJKC4flsv+YZwY2U4w4mo=
 github.com/shestakovda/fdbx/v2 v2.0.0-prerelease.10/go.mod h1:wK2padRSHQ6O0xWanG1A7Ag/NL/chQGq3w9SF8pTI+w=
+github.com/shestakovda/fdbx/v2 v2.0.0-prerelease.20 h1:j0S5F8ZcTQrfGkPe+EtfAYOACAc4dh2ZYraZBUzBmKI=
+github.com/shestakovda/fdbx/v2 v2.0.0-prerelease.20/go.mod h1:JuTY0B+Tl4/g+AwjSAafOmcEPO9g3g+uU6IkomUqLNc=
 github.com/shestakovda/typex v1.0.0 h1:8e5Jgc7dS6EIaAT8z+KI6oNlop/HbRfcOQvN7vEs7Bc=
 github.com/shestakovda/typex v1.0.0/go.mod h1:Pjz2Ikohi4w39r4psqbBPD2THJhhiv6b7QUxtem+IZg=
+github.com/shestakovda/typex v1.0.1 h1:FPaDOeO7PfEMRByACnzo/yrCOoF2kyeqZL7PY/y+MXQ=
+github.com/shestakovda/typex v1.0.1/go.mod h1:Pjz2Ikohi4w39r4psqbBPD2THJhhiv6b7QUxtem+IZg=
 github.com/sony/sonyflake v1.0.0 h1:MpU6Ro7tfXwgn2l5eluf9xQvQJDROTBImNCfRXn/YeM=
 github.com/sony/sonyflake v1.0.0/go.mod h1:Jv3cfhf/UFtolOTTRd3q4Nl6ENqM+KfyZ5PseKfZGF4=
 github.com/stretchr/objx v0.1.0 h1:4G4v2dO3VZwixGIRoQ5Lfboy6nUhCyYzaqnIAPPhYs4=

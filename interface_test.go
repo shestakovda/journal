@@ -77,8 +77,7 @@ func (s *InterfaceSuite) TestWorkflowFdbx() {
 	s.Require().NoError(err)
 	s.Require().NoError(dbc.Clear())
 
-	tx, err := mvcc.Begin(dbc)
-	s.Require().NoError(err)
+	tx := mvcc.Begin(dbc)
 	defer tx.Cancel()
 
 	drv := journal.NewFdbxDriver(dbc, 0x1234, 0x4321)
