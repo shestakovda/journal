@@ -4,6 +4,7 @@ import (
 	"encoding/binary"
 	"time"
 
+	"github.com/golang/glog"
 	"github.com/shestakovda/errx"
 	"github.com/shestakovda/fdbx/v2"
 	"github.com/shestakovda/fdbx/v2/mvcc"
@@ -80,11 +81,20 @@ func (f *fdbxFactory) Cursor(id string) (Cursor, error) {
 func (f *fdbxFactory) ByDate(from, last time.Time, page uint, services ...string) (_ Cursor, err error) {
 	var qid string
 
+	if Debug {
+		glog.Infof("fdbxFactory.ByDate(%s, %s, %d)", from, last, page)
+	}
+
 	que := f.tbl.Select(f.tx).Page(int(page)).Reverse().ByIndexRange(
 		IndexStart,
 		fdbx.Bytes2Key(fdbx.Time2Byte(from)),
 		fdbx.Bytes2Key(fdbx.Time2Byte(last)),
 	)
+
+	if Debug {
+		glog.Infof("fdbxFactory.ByModelDate.from = %s", fdbx.Bytes2Key(fdbx.Time2Byte(from)).Printable())
+		glog.Infof("fdbxFactory.ByModelDate.last = %s", fdbx.Bytes2Key(fdbx.Time2Byte(last)).Printable())
+	}
 
 	if qid, err = que.Save(); err != nil {
 		return nil, errx.ErrInternal.WithReason(err).WithDebug(errx.Debug{
@@ -107,6 +117,10 @@ func (f *fdbxFactory) ByModelDate(
 ) (_ Cursor, err error) {
 	var qid string
 
+	if Debug {
+		glog.Infof("fdbxFactory.ByModelDate(%d, %s, %s, %s, %d)", mtp.ID(), mid, from, last, page)
+	}
+
 	entp := make([]byte, 4)
 	binary.BigEndian.PutUint32(entp, uint32(mtp.ID()))
 
@@ -116,6 +130,11 @@ func (f *fdbxFactory) ByModelDate(
 		key.RPart(fdbx.Time2Byte(from)...),
 		key.RPart(fdbx.Time2Byte(last)...),
 	)
+
+	if Debug {
+		glog.Infof("fdbxFactory.ByModelDate.from = %s", key.RPart(fdbx.Time2Byte(from)...).Printable())
+		glog.Infof("fdbxFactory.ByModelDate.last = %s", key.RPart(fdbx.Time2Byte(last)...).Printable())
+	}
 
 	if qid, err = que.Save(); err != nil {
 		return nil, errx.ErrInternal.WithReason(err).WithDebug(errx.Debug{

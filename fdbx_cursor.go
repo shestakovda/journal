@@ -1,6 +1,7 @@
 package journal
 
 import (
+	"github.com/golang/glog"
 	"github.com/shestakovda/errx"
 	"github.com/shestakovda/fdbx/v2"
 	"github.com/shestakovda/fdbx/v2/orm"
@@ -8,6 +9,10 @@ import (
 )
 
 func newFdbxCursor(fac *fdbxFactory, qid string, que orm.Query) *fdbxCursor {
+	if Debug {
+		glog.Infof("newFdbxCursor(%s)", qid)
+	}
+
 	return &fdbxCursor{
 		qid: qid,
 		que: que,
@@ -16,6 +21,10 @@ func newFdbxCursor(fac *fdbxFactory, qid string, que orm.Query) *fdbxCursor {
 }
 
 func loadFdbxCursor(fac *fdbxFactory, qid string) (cur *fdbxCursor, err error) {
+	if Debug {
+		glog.Infof("loadFdbxCursor(%s)", qid)
+	}
+
 	cur = &fdbxCursor{
 		qid: qid,
 		fac: fac,
@@ -47,11 +56,21 @@ func (c *fdbxCursor) ID() string {
 }
 
 func (c *fdbxCursor) Empty() bool {
-	return c.que.Empty()
+	empty := c.que.Empty()
+
+	if Debug {
+		glog.Infof("fdbxCursor.%s.Empty = %t", c.qid, empty)
+	}
+
+	return empty
 }
 
 func (c *fdbxCursor) NextPage(size uint, services ...string) (res []Model, err error) {
 	var rows []fdbx.Pair
+
+	if Debug {
+		glog.Infof("fdbxCursor.%s.NextPage(%d, %v)", c.qid, size, services)
+	}
 
 	if len(services) > 0 {
 		c.que = c.que.Where(filterByService(services))
@@ -61,6 +80,10 @@ func (c *fdbxCursor) NextPage(size uint, services ...string) (res []Model, err e
 		return nil, errx.ErrInternal.WithReason(err).WithDebug(errx.Debug{
 			"Сервисы": services,
 		})
+	}
+
+	if Debug {
+		glog.Infof("fdbxCursor.%s.NextPage = %v", c.qid, rows)
 	}
 
 	res = make([]Model, len(rows))

@@ -8,6 +8,9 @@ import (
 	"github.com/shestakovda/journal/crash"
 )
 
+// Debug - флаг отладки
+var Debug bool = false
+
 // Типы для моделей по-умолчанию
 const (
 	ModelTypeUnknown journalModels = 0
