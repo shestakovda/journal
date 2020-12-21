@@ -37,8 +37,6 @@ func loadFdbxCursor(fac *fdbxFactory, qid string) (cur *fdbxCursor, err error) {
 }
 
 type fdbxCursor struct {
-	empty bool
-
 	qid string
 	que orm.Query
 	fac *fdbxFactory
@@ -49,7 +47,7 @@ func (c *fdbxCursor) ID() string {
 }
 
 func (c *fdbxCursor) Empty() bool {
-	return c.empty
+	return c.que.Empty()
 }
 
 func (c *fdbxCursor) NextPage(size uint, services ...string) (res []Model, err error) {
@@ -63,10 +61,6 @@ func (c *fdbxCursor) NextPage(size uint, services ...string) (res []Model, err e
 		return nil, errx.ErrInternal.WithReason(err).WithDebug(errx.Debug{
 			"Сервисы": services,
 		})
-	}
-
-	if len(rows) < int(size) {
-		c.empty = true
 	}
 
 	res = make([]Model, len(rows))
