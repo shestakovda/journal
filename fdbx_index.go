@@ -5,12 +5,13 @@ import (
 	"strings"
 	"time"
 
+	"github.com/apple/foundationdb/bindings/go/src/fdb"
 	"github.com/shestakovda/fdbx/v2"
 	"github.com/shestakovda/fdbx/v2/orm"
 	"github.com/shestakovda/journal/models"
 )
 
-func idxJournal(buf []byte) (map[uint16][]fdbx.Key, error) {
+func idxJournal(buf []byte) (map[uint16][]fdb.Key, error) {
 	var mid []byte
 
 	stg := new(models.FdbxStage)
@@ -18,7 +19,7 @@ func idxJournal(buf []byte) (map[uint16][]fdbx.Key, error) {
 
 	entp := make([]byte, 4)
 	clen := mod.ChainLength()
-	keys := make([]fdbx.Key, 0, clen)
+	keys := make([]fdb.Key, 0, clen)
 	start := fdbx.Time2Byte(time.Unix(0, mod.Start()))
 
 	for i := 0; i < clen; i++ {
@@ -31,11 +32,11 @@ func idxJournal(buf []byte) (map[uint16][]fdbx.Key, error) {
 		}
 
 		binary.BigEndian.PutUint32(entp, uint32(stg.Mtp()))
-		keys = append(keys, fdbx.Bytes2Key(mid).LPart(entp...).RPart(start...))
+		keys = append(keys, fdbx.AppendRight(fdbx.AppendRight(entp, mid...), start...))
 	}
 
-	return map[uint16][]fdbx.Key{
-		IndexStart: []fdbx.Key{fdbx.Bytes2Key(start)},
+	return map[uint16][]fdb.Key{
+		IndexStart: {start},
 		IndexModel: keys,
 	}, nil
 }
@@ -46,8 +47,8 @@ func filterByService(services []string) orm.Filter {
 		exist[strings.ToLower(services[i])] = struct{}{}
 	}
 
-	return func(row fdbx.Pair) (ok bool, err error) {
-		srv := models.GetRootAsFdbxJournal(row.Value(), 0).Service()
+	return func(row fdb.KeyValue) (ok bool, err error) {
+		srv := models.GetRootAsFdbxJournal(row.Value, 0).Service()
 		_, ok = exist[strings.ToLower(string(srv))]
 		return ok, nil
 	}

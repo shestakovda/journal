@@ -3,6 +3,7 @@ package journal
 import (
 	"time"
 
+	"github.com/apple/foundationdb/bindings/go/src/fdb"
 	"github.com/shestakovda/fdbx/v2"
 	"github.com/shestakovda/journal/crash"
 	"github.com/shestakovda/journal/models"
@@ -148,7 +149,7 @@ func (m *fdbxModel) setEntry(e *Entry) (reps []*crash.Report, err error) {
 	return reps, nil
 }
 
-func (m *fdbxModel) pair() fdbx.Pair {
+func (m *fdbxModel) pair() fdb.KeyValue {
 	obj := &models.FdbxJournalT{
 		Service: m.sid,
 		Total:   int64(m.total),
@@ -160,7 +161,7 @@ func (m *fdbxModel) pair() fdbx.Pair {
 		obj.Chain[i] = m.chain[i].dump()
 	}
 
-	return fdbx.NewPair(fdbx.Bytes2Key(m.uid), fdbx.FlatPack(obj))
+	return fdb.KeyValue{fdb.Key(m.uid), fdbx.FlatPack(obj)}
 }
 
 func (m *fdbxModel) save() (err error) {

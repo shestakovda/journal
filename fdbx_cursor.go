@@ -1,9 +1,9 @@
 package journal
 
 import (
+	"github.com/apple/foundationdb/bindings/go/src/fdb"
 	"github.com/golang/glog"
 	"github.com/shestakovda/errx"
-	"github.com/shestakovda/fdbx/v2"
 	"github.com/shestakovda/fdbx/v2/orm"
 	"github.com/shestakovda/typex"
 )
@@ -66,7 +66,7 @@ func (c *fdbxCursor) Empty() bool {
 }
 
 func (c *fdbxCursor) NextPage(size uint, services ...string) (res []Model, err error) {
-	var rows []fdbx.Pair
+	var rows []fdb.KeyValue
 
 	if Debug {
 		glog.Infof("fdbxCursor.%s.NextPage(%d, %v)", c.qid, size, services)
@@ -88,7 +88,7 @@ func (c *fdbxCursor) NextPage(size uint, services ...string) (res []Model, err e
 
 	res = make([]Model, len(rows))
 	for i := range rows {
-		res[i] = loadFdbxModel(c.fac, typex.UUID(rows[i].Key().Bytes()), rows[i].Value())
+		res[i] = loadFdbxModel(c.fac, typex.UUID(rows[i].Key), rows[i].Value)
 	}
 
 	return res, nil

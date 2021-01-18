@@ -4,6 +4,7 @@ import (
 	"strings"
 	"time"
 
+	"github.com/apple/foundationdb/bindings/go/src/fdb"
 	"github.com/shestakovda/fdbx/v2"
 	"github.com/shestakovda/journal/models"
 	"github.com/shestakovda/typex"
@@ -138,7 +139,7 @@ func (m *fdbxModel) setReport(r *Report) (err error) {
 	return nil
 }
 
-func (m *fdbxModel) pair() fdbx.Pair {
+func (m *fdbxModel) pair() fdb.KeyValue {
 	obj := &models.FdbxCrashT{
 		Code:   m.code,
 		Link:   m.link,
@@ -155,7 +156,7 @@ func (m *fdbxModel) pair() fdbx.Pair {
 		obj.Steps[i] = m.steps[i].dump()
 	}
 
-	return fdbx.NewPair(fdbx.Bytes2Key(m.uid), fdbx.FlatPack(obj))
+	return fdb.KeyValue{fdb.Key(m.uid), fdbx.FlatPack(obj)}
 }
 
 func (m *fdbxModel) save() (err error) {

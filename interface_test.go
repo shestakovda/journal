@@ -73,7 +73,7 @@ func (s *InterfaceSuite) TestWorkflowFDB() {
 }
 
 func (s *InterfaceSuite) TestWorkflowFdbx() {
-	dbc, err := db.ConnectV610(0x10)
+	dbc, err := db.Connect(0x10)
 	s.Require().NoError(err)
 	s.Require().NoError(dbc.Clear())
 

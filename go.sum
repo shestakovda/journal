@@ -49,6 +49,8 @@ github.com/shestakovda/fdbx/v2 v2.0.0-prerelease.10 h1:xCGWotQy74Fo0cYRg5XURTIJK
 github.com/shestakovda/fdbx/v2 v2.0.0-prerelease.10/go.mod h1:wK2padRSHQ6O0xWanG1A7Ag/NL/chQGq3w9SF8pTI+w=
 github.com/shestakovda/fdbx/v2 v2.0.0-prerelease.20 h1:j0S5F8ZcTQrfGkPe+EtfAYOACAc4dh2ZYraZBUzBmKI=
 github.com/shestakovda/fdbx/v2 v2.0.0-prerelease.20/go.mod h1:JuTY0B+Tl4/g+AwjSAafOmcEPO9g3g+uU6IkomUqLNc=
+github.com/shestakovda/fdbx/v2 v2.0.2-dev.3 h1:MMttZGfil5/wlk6vyaS079CfW3C9L1WpSkRdD2KopPs=
+github.com/shestakovda/fdbx/v2 v2.0.2-dev.3/go.mod h1:JuTY0B+Tl4/g+AwjSAafOmcEPO9g3g+uU6IkomUqLNc=
 github.com/shestakovda/typex v1.0.0 h1:8e5Jgc7dS6EIaAT8z+KI6oNlop/HbRfcOQvN7vEs7Bc=
 github.com/shestakovda/typex v1.0.0/go.mod h1:Pjz2Ikohi4w39r4psqbBPD2THJhhiv6b7QUxtem+IZg=
 github.com/shestakovda/typex v1.0.1 h1:FPaDOeO7PfEMRByACnzo/yrCOoF2kyeqZL7PY/y+MXQ=
