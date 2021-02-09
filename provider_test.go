@@ -4,10 +4,11 @@ import (
 	"net/http"
 
 	"github.com/shestakovda/errx"
-	"github.com/shestakovda/journal/crash"
 	"github.com/stretchr/testify/assert"
 	"github.com/stretchr/testify/mock"
 	"github.com/stretchr/testify/suite"
+
+	"github.com/shestakovda/journal/crash"
 )
 
 const (
@@ -39,7 +40,6 @@ func (s *ProviderSuite) TearDownTest() {
 }
 
 func (s *ProviderSuite) TestPrint() {
-
 	mt := &mType{
 		id:   24,
 		name: "event",

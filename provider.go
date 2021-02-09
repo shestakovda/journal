@@ -6,8 +6,9 @@ import (
 	"sync"
 	"time"
 
-	"github.com/shestakovda/journal/crash"
 	"github.com/shestakovda/typex"
+
+	"github.com/shestakovda/journal/crash"
 )
 
 /*
@@ -54,6 +55,7 @@ type provider struct {
 	crp crash.Provider
 	max int
 	lvl int
+	opt bool
 }
 
 func (p *provider) V(lvl int) bool {
@@ -98,7 +100,8 @@ func (p *provider) Close() *Entry {
 		Service: p.srv,
 	}
 
-	if p.drv != nil {
+	// Нужно сохранять, если есть драйвер, есть ошибка или обязательно надо
+	if p.drv != nil && (p.crash || !p.opt) {
 		if err = p.drv.InsertEntry(e); err != nil {
 			p.Crash(err)
 			e.Chain = p.chain
@@ -115,7 +118,13 @@ func (p *provider) Close() *Entry {
 	return e
 }
 
-func (p *provider) Clone() Provider { return NewProvider(p.max, p.crp, p.drv, p.log, p.srv) }
+func (p *provider) Clone() Provider {
+	prv := NewProvider(p.max, p.crp, p.drv, p.log, p.srv)
+	prv.SaveOnlyError(p.opt)
+	return prv
+}
+
+func (p *provider) SaveOnlyError(opt bool) { p.opt = opt }
 
 func (p *provider) stage(s *Stage) {
 	if s.Fail != nil {

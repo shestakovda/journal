@@ -3,6 +3,7 @@ package journal
 import (
 	"time"
 
+	"github.com/shestakovda/errx"
 	"github.com/shestakovda/fdbx/v2/db"
 	"github.com/shestakovda/fdbx/v2/mvcc"
 
@@ -87,6 +88,11 @@ type Provider interface {
 		Clone - создание нового чистого провайдера, с теми же параметрами.
 	*/
 	Clone() Provider
+
+	/*
+		SaveOnlyError - пометка о том, что сохранять запись в БД при закрытии нужно только в случае ошибки
+	*/
+	SaveOnlyError(opt bool)
 }
 
 // Driver - помощник сохранения журнала для провайдера
@@ -177,3 +183,11 @@ type Logger interface {
 	Print(tpl string, args ...interface{})
 	Error(tpl string, args ...interface{})
 }
+
+// Ошибки реализаций
+var (
+	ErrSelect   = errx.New("Ошибка загрузки записи журнала").WithReason(errx.ErrInternal)
+	ErrInsert   = errx.New("Ошибка сохранения записи журнала").WithReason(errx.ErrInternal)
+	ErrNotFound = errx.New("Не найдены подходящие записи журнала").WithReason(errx.ErrNotFound)
+	ErrValidate = errx.New("Ошибка валидации входных данных").WithReason(errx.ErrBadRequest)
+)

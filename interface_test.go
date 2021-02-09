@@ -7,7 +7,6 @@ import (
 	"time"
 
 	"github.com/shestakovda/errx"
-	fdbv1 "github.com/shestakovda/fdbx"
 	"github.com/shestakovda/fdbx/v2/db"
 	"github.com/shestakovda/fdbx/v2/mvcc"
 	"github.com/shestakovda/typex"
@@ -17,16 +16,9 @@ import (
 	"github.com/shestakovda/journal/crash"
 )
 
-func TestFactory(t *testing.T) {
-	suite.Run(t, new(journal.FdbSuite))
-}
-
-func TestProvider(t *testing.T) {
-	suite.Run(t, new(journal.ProviderSuite))
-}
-
 func TestInterface(t *testing.T) {
 	suite.Run(t, new(InterfaceSuite))
+	suite.Run(t, new(journal.ProviderSuite))
 }
 
 type InterfaceSuite struct {
@@ -48,29 +40,6 @@ func (s *InterfaceSuite) SetupTest() {
 
 	s.crp = crash.NewTestProvider()
 	s.crp.Register(http.StatusForbidden, journal.TestNum, journal.TestTitle, errx.ErrForbidden)
-}
-
-func (s *InterfaceSuite) testWorkflowFDB() {
-	var cid string
-
-	fdb, err := fdbv1.NewConn(crash.DatabaseAPI, fdbv1.ConnVersion610)
-	s.Require().NoError(err)
-	s.Require().NoError(fdb.ClearDB())
-
-	// Сохраняем данные по логам
-	log, rep := s.saveEntries(journal.NewDriverFDB(fdb))
-
-	// Где-то в другом месте его можно получить по айдишке
-	s.Require().NoError(fdb.Tx(func(db fdbv1.DB) error {
-		cid = s.checkSaved(journal.NewFactoryFDB(fdb, db), log, rep)
-		return nil
-	}))
-
-	// В след. раз загружаем этот курсор и смотрим, чот там есть
-	s.Require().NoError(fdb.Tx(func(db fdbv1.DB) (exp error) {
-		s.checkCursor(journal.NewFactoryFDB(fdb, db), cid)
-		return nil
-	}))
 }
 
 func (s *InterfaceSuite) TestWorkflowFdbx() {
