@@ -10,10 +10,11 @@ import (
 	fdbv1 "github.com/shestakovda/fdbx"
 	"github.com/shestakovda/fdbx/v2/db"
 	"github.com/shestakovda/fdbx/v2/mvcc"
-	"github.com/shestakovda/journal"
-	"github.com/shestakovda/journal/crash"
 	"github.com/shestakovda/typex"
 	"github.com/stretchr/testify/suite"
+
+	"github.com/shestakovda/journal"
+	"github.com/shestakovda/journal/crash"
 )
 
 func TestFactory(t *testing.T) {
@@ -49,7 +50,7 @@ func (s *InterfaceSuite) SetupTest() {
 	s.crp.Register(http.StatusForbidden, journal.TestNum, journal.TestTitle, errx.ErrForbidden)
 }
 
-func (s *InterfaceSuite) TestWorkflowFDB() {
+func (s *InterfaceSuite) testWorkflowFDB() {
 	var cid string
 
 	fdb, err := fdbv1.NewConn(crash.DatabaseAPI, fdbv1.ConnVersion610)

@@ -2,6 +2,7 @@ package journal
 
 import (
 	"fmt"
+	"os"
 	"sync"
 	"time"
 
@@ -33,6 +34,7 @@ func NewProvider(max int, crp crash.Provider, drv Driver, log Logger, srv string
 		start: time.Now(),
 		chain: make([]*Stage, 0, 16),
 	}
+	p.host, _ = os.Hostname()
 	p.point = p.start
 	return p
 }
@@ -44,6 +46,7 @@ type provider struct {
 	point time.Time
 	start time.Time
 	chain []*Stage
+	host  string
 
 	drv Driver
 	log Logger
@@ -91,6 +94,7 @@ func (p *provider) Close() *Entry {
 		Total:   time.Since(p.start),
 		Start:   p.start.UTC(),
 		Chain:   p.chain,
+		Host:    p.host,
 		Service: p.srv,
 	}
 

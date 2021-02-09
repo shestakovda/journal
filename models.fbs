@@ -32,6 +32,7 @@ table FdbxJournal {
     total:int64;
     chain:[FdbxStage];
     service:string;
+    host:string;
 }
 
 table FdbxDebug {

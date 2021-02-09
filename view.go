@@ -13,6 +13,7 @@ import (
 // Entry - основное представление записи журнала
 type Entry struct {
 	ID      string
+	Host    string
 	Service string
 	Start   time.Time
 	Total   time.Duration
@@ -29,6 +30,8 @@ func (v Entry) String() string {
 	// Заголовок записи
 	buf.WriteString("Запись: ")
 	buf.WriteString(v.ID)
+	buf.WriteString(" Хост: ")
+	buf.WriteString(v.Host)
 	buf.WriteString(" Старт: ")
 	buf.WriteString(v.Start.Format(time.RFC3339Nano))
 	buf.WriteString(" Сервис: ")
@@ -121,6 +124,7 @@ type StageAPI struct {
 
 type ViewMonitoring struct {
 	ID      string             `json:"id,omitempty"`
+	Host    string             `json:"host"`
 	Service string             `json:"service"`
 	Total   string             `json:"total"`
 	Name    string             `json:"name"`

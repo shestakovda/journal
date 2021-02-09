@@ -11,6 +11,7 @@ type FdbxJournalT struct {
 	Total   int64
 	Chain   []*FdbxStageT
 	Service string
+	Host    string
 }
 
 func (t *FdbxJournalT) Pack(builder *flatbuffers.Builder) flatbuffers.UOffsetT {
@@ -31,11 +32,13 @@ func (t *FdbxJournalT) Pack(builder *flatbuffers.Builder) flatbuffers.UOffsetT {
 		chainOffset = builder.EndVector(chainLength)
 	}
 	serviceOffset := builder.CreateString(t.Service)
+	hostOffset := builder.CreateString(t.Host)
 	FdbxJournalStart(builder)
 	FdbxJournalAddStart(builder, t.Start)
 	FdbxJournalAddTotal(builder, t.Total)
 	FdbxJournalAddChain(builder, chainOffset)
 	FdbxJournalAddService(builder, serviceOffset)
+	FdbxJournalAddHost(builder, hostOffset)
 	return FdbxJournalEnd(builder)
 }
 
@@ -50,6 +53,7 @@ func (rcv *FdbxJournal) UnPackTo(t *FdbxJournalT) {
 		t.Chain[j] = x.UnPack()
 	}
 	t.Service = string(rcv.Service())
+	t.Host = string(rcv.Host())
 }
 
 func (rcv *FdbxJournal) UnPack() *FdbxJournalT {
@@ -133,8 +137,16 @@ func (rcv *FdbxJournal) Service() []byte {
 	return nil
 }
 
+func (rcv *FdbxJournal) Host() []byte {
+	o := flatbuffers.UOffsetT(rcv._tab.Offset(12))
+	if o != 0 {
+		return rcv._tab.ByteVector(o + rcv._tab.Pos)
+	}
+	return nil
+}
+
 func FdbxJournalStart(builder *flatbuffers.Builder) {
-	builder.StartObject(4)
+	builder.StartObject(5)
 }
 func FdbxJournalAddStart(builder *flatbuffers.Builder, start int64) {
 	builder.PrependInt64Slot(0, start, 0)
@@ -150,6 +162,9 @@ func FdbxJournalStartChainVector(builder *flatbuffers.Builder, numElems int) fla
 }
 func FdbxJournalAddService(builder *flatbuffers.Builder, service flatbuffers.UOffsetT) {
 	builder.PrependUOffsetTSlot(3, flatbuffers.UOffsetT(service), 0)
+}
+func FdbxJournalAddHost(builder *flatbuffers.Builder, host flatbuffers.UOffsetT) {
+	builder.PrependUOffsetTSlot(4, flatbuffers.UOffsetT(host), 0)
 }
 func FdbxJournalEnd(builder *flatbuffers.Builder) flatbuffers.UOffsetT {
 	return builder.EndObject()

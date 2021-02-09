@@ -8,6 +8,7 @@ import (
 	"github.com/apple/foundationdb/bindings/go/src/fdb"
 	"github.com/shestakovda/fdbx/v2"
 	"github.com/shestakovda/fdbx/v2/orm"
+
 	"github.com/shestakovda/journal/models"
 )
 

@@ -5,9 +5,10 @@ import (
 
 	"github.com/apple/foundationdb/bindings/go/src/fdb"
 	"github.com/shestakovda/fdbx/v2"
+	"github.com/shestakovda/typex"
+
 	"github.com/shestakovda/journal/crash"
 	"github.com/shestakovda/journal/models"
-	"github.com/shestakovda/typex"
 )
 
 func newFdbxModel(fac *fdbxFactory) *fdbxModel {
@@ -23,6 +24,7 @@ func loadFdbxModel(fac *fdbxFactory, uid typex.UUID, buf []byte) *fdbxModel {
 		uid:   uid,
 		fac:   fac,
 		sid:   obj.Service,
+		host:  obj.Host,
 		start: time.Unix(0, obj.Start).UTC(),
 		total: time.Duration(obj.Total),
 		chain: make([]*fdbxStage, len(obj.Chain)),
@@ -38,6 +40,7 @@ func loadFdbxModel(fac *fdbxFactory, uid typex.UUID, buf []byte) *fdbxModel {
 type fdbxModel struct {
 	uid   typex.UUID
 	sid   string
+	host  string
 	start time.Time
 	total time.Duration
 	chain []*fdbxStage
@@ -66,6 +69,7 @@ func (m *fdbxModel) Export(withCrash bool) (e *Entry, err error) {
 
 	e = &Entry{
 		ID:      m.uid.Hex(),
+		Host:    m.host,
 		Service: m.sid,
 		Start:   m.start,
 		Total:   m.total,
@@ -87,7 +91,7 @@ func (m *fdbxModel) Export(withCrash bool) (e *Entry, err error) {
 	return e, nil
 }
 
-func (m *fdbxModel) ExportAPI(log Provider) (a *API) {
+func (m *fdbxModel) ExportAPI(_ Provider) (a *API) {
 	a = &API{
 		ID:     m.uid.Hex(),
 		Start:  m.start,
@@ -106,9 +110,10 @@ func (m *fdbxModel) ExportAPI(log Provider) (a *API) {
 	return a
 }
 
-func (m *fdbxModel) ExportMonitoring(log Provider) (v *ViewMonitoring) {
+func (m *fdbxModel) ExportMonitoring(_ Provider) (v *ViewMonitoring) {
 	v = &ViewMonitoring{
 		ID:      m.uid.Hex(),
+		Host:    m.host,
 		Service: m.sid,
 		Start:   m.start,
 		Total:   m.total.String(),
@@ -133,6 +138,7 @@ func (m *fdbxModel) setEntry(e *Entry) (reps []*crash.Report, err error) {
 	}
 
 	m.sid = e.Service
+	m.host = e.Host
 	m.total = e.Total
 	m.start = e.Start.UTC()
 	m.chain = make([]*fdbxStage, len(e.Chain))
@@ -151,6 +157,7 @@ func (m *fdbxModel) setEntry(e *Entry) (reps []*crash.Report, err error) {
 
 func (m *fdbxModel) pair() fdb.KeyValue {
 	obj := &models.FdbxJournalT{
+		Host:    m.host,
 		Service: m.sid,
 		Total:   int64(m.total),
 		Start:   m.start.UnixNano(),
@@ -161,7 +168,7 @@ func (m *fdbxModel) pair() fdb.KeyValue {
 		obj.Chain[i] = m.chain[i].dump()
 	}
 
-	return fdb.KeyValue{fdb.Key(m.uid), fdbx.FlatPack(obj)}
+	return fdb.KeyValue{Key: fdb.Key(m.uid), Value: fdbx.FlatPack(obj)}
 }
 
 func (m *fdbxModel) save() (err error) {

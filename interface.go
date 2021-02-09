@@ -5,11 +5,9 @@ import (
 
 	"github.com/shestakovda/fdbx/v2/db"
 	"github.com/shestakovda/fdbx/v2/mvcc"
+
 	"github.com/shestakovda/journal/crash"
 )
-
-// Debug - флаг отладки
-var Debug bool = false
 
 // Типы для моделей по-умолчанию
 const (

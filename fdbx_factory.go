@@ -5,13 +5,13 @@ import (
 	"time"
 
 	"github.com/apple/foundationdb/bindings/go/src/fdb"
-	"github.com/golang/glog"
 	"github.com/shestakovda/errx"
 	"github.com/shestakovda/fdbx/v2"
 	"github.com/shestakovda/fdbx/v2/mvcc"
 	"github.com/shestakovda/fdbx/v2/orm"
-	"github.com/shestakovda/journal/crash"
 	"github.com/shestakovda/typex"
+
+	"github.com/shestakovda/journal/crash"
 )
 
 func newFdbxFactory(tx mvcc.Tx, journalID, crashID uint16) *fdbxFactory {
@@ -79,23 +79,14 @@ func (f *fdbxFactory) Cursor(id string) (Cursor, error) {
 	return loadFdbxCursor(f, id)
 }
 
-func (f *fdbxFactory) ByDate(from, last time.Time, page uint, services ...string) (_ Cursor, err error) {
+func (f *fdbxFactory) ByDate(from, last time.Time, page uint, _ ...string) (_ Cursor, err error) {
 	var qid string
-
-	if Debug {
-		glog.Infof("fdbxFactory.ByDate(%s, %s, %d)", from, last, page)
-	}
 
 	que := f.tbl.Select(f.tx).Page(int(page)).Reverse().ByIndexRange(
 		IndexStart,
 		fdbx.Time2Byte(from),
 		fdbx.Time2Byte(last),
 	)
-
-	if Debug {
-		glog.Infof("fdbxFactory.ByModelDate.from = %s", fdb.Key(fdbx.Time2Byte(from)))
-		glog.Infof("fdbxFactory.ByModelDate.last = %s", fdb.Key(fdbx.Time2Byte(last)))
-	}
 
 	if qid, err = que.Save(); err != nil {
 		return nil, errx.ErrInternal.WithReason(err).WithDebug(errx.Debug{
@@ -118,10 +109,6 @@ func (f *fdbxFactory) ByModelDate(
 ) (_ Cursor, err error) {
 	var qid string
 
-	if Debug {
-		glog.Infof("fdbxFactory.ByModelDate(%d, %s, %s, %s, %d)", mtp.ID(), mid, from, last, page)
-	}
-
 	entp := make([]byte, 4)
 	binary.BigEndian.PutUint32(entp, uint32(mtp.ID()))
 
@@ -131,11 +118,6 @@ func (f *fdbxFactory) ByModelDate(
 		fdbx.AppendRight(key, fdbx.Time2Byte(from)...),
 		fdbx.AppendRight(key, fdbx.Time2Byte(last)...),
 	)
-
-	if Debug {
-		glog.Infof("fdbxFactory.ByModelDate.from = %s", fdbx.AppendRight(key, fdbx.Time2Byte(from)...))
-		glog.Infof("fdbxFactory.ByModelDate.last = %s", fdbx.AppendRight(key, fdbx.Time2Byte(last)...))
-	}
 
 	if qid, err = que.Save(); err != nil {
 		return nil, errx.ErrInternal.WithReason(err).WithDebug(errx.Debug{
