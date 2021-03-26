@@ -36,6 +36,14 @@ func loadFdbxModel(fac *fdbxFactory, uid typex.UUID, buf []byte) *fdbxModel {
 		mod.steps[i] = fdbxLoadStep(obj.Steps[i])
 	}
 
+	if len(obj.Debug) != 0 {
+		mod.debug = make(map[string]string, len(obj.Debug))
+
+		for i := range obj.Debug {
+			mod.debug[obj.Debug[i].Name] = obj.Debug[i].Text
+		}
+	}
+
 	return mod
 }
 
@@ -47,6 +55,7 @@ type fdbxModel struct {
 	status  uint16
 	created time.Time
 	steps   []*fdbxStep
+	debug   map[string]string
 
 	fac *fdbxFactory
 }
@@ -65,6 +74,7 @@ func (m *fdbxModel) Export() *Report {
 		Code:    m.code,
 		Link:    m.link,
 		Title:   m.title,
+		Debug:   m.debug,
 		Status:  m.status,
 		Created: m.created,
 		Entries: make([]*ReportEntry, len(m.steps)),
@@ -83,6 +93,7 @@ func (m *fdbxModel) ExportMonitoring() *ViewMonitoring {
 		Code:    m.code,
 		Link:    m.link,
 		Title:   m.title,
+		Debug:   m.debug,
 		Status:  int(m.status),
 		Created: m.created,
 		Entries: make([]*ViewMonitoringEntry, len(m.steps)),
@@ -129,6 +140,7 @@ func (m *fdbxModel) setReport(r *Report) (err error) {
 	m.link = r.Link
 	m.title = r.Title
 	m.status = r.Status
+	m.debug = r.Debug
 	m.created = r.Created.UTC()
 	m.steps = make([]*fdbxStep, len(r.Entries))
 
@@ -156,7 +168,18 @@ func (m *fdbxModel) pair() fdb.KeyValue {
 		obj.Steps[i] = m.steps[i].dump()
 	}
 
-	return fdb.KeyValue{fdb.Key(m.uid), fdbx.FlatPack(obj)}
+	if len(m.debug) != 0 {
+		obj.Debug = make([]*models.FdbxDebugT, 0, len(m.debug))
+
+		for i := range m.debug {
+			obj.Debug = append(obj.Debug, &models.FdbxDebugT{
+				Name: i,
+				Text: m.debug[i],
+			})
+		}
+	}
+
+	return fdb.KeyValue{Key: fdb.Key(m.uid), Value: fdbx.FlatPack(obj)}
 }
 
 func (m *fdbxModel) save() (err error) {

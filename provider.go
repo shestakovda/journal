@@ -52,10 +52,11 @@ type provider struct {
 	drv Driver
 	log Logger
 	srv string
-	crp crash.Provider
 	max int
 	lvl int
 	opt bool
+	crp crash.Provider
+	dbg map[string]string
 }
 
 func (p *provider) V(lvl int) bool {
@@ -93,11 +94,12 @@ func (p *provider) Close() *Entry {
 
 	e := &Entry{
 		ID:      typex.NewUUID().Hex(),
-		Total:   time.Since(p.start),
-		Start:   p.start.UTC(),
-		Chain:   p.chain,
-		Host:    p.host,
+		Debug:   p.dbg,
 		Service: p.srv,
+		Host:    p.host,
+		Chain:   p.chain,
+		Start:   p.start.UTC(),
+		Total:   time.Since(p.start),
 	}
 
 	// Нужно сохранять, если есть драйвер, есть ошибка или обязательно надо
@@ -108,6 +110,8 @@ func (p *provider) Close() *Entry {
 			e.Total = time.Since(p.start)
 		}
 	}
+
+	e.Debug = nil // убираем дебаг - он нужен только для ошибок
 
 	if p.crash {
 		p.log.Error("%s", e)
@@ -125,6 +129,16 @@ func (p *provider) Clone() Provider {
 }
 
 func (p *provider) SaveOnlyError(opt bool) { p.opt = opt }
+
+func (p *provider) Debug(dbg map[string]string) {
+	if len(p.dbg) == 0 {
+		p.dbg = dbg
+	} else {
+		for i := range dbg {
+			p.dbg[i] = dbg[i]
+		}
+	}
+}
 
 func (p *provider) stage(s *Stage) {
 	if s.Fail != nil {

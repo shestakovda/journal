@@ -18,6 +18,7 @@ type Entry struct {
 	Start   time.Time
 	Total   time.Duration
 	Chain   []*Stage
+	Debug   map[string]string
 }
 
 func (v Entry) String() string {
@@ -25,7 +26,7 @@ func (v Entry) String() string {
 	var buf strings.Builder
 
 	// Примерная прикидка, чтобы сэкономить в большинстве случаев
-	buf.Grow(64 + len(v.ID) + 32 + len(v.Service) + 256*len(v.Chain))
+	buf.Grow(64 + len(v.ID) + 32 + len(v.Service) + len(v.Debug)*32 + 256*len(v.Chain))
 
 	// Заголовок записи
 	buf.WriteString("Запись: ")
@@ -37,6 +38,17 @@ func (v Entry) String() string {
 	buf.WriteString(" Сервис: ")
 	buf.WriteString(v.Service)
 	buf.WriteByte(newline)
+
+	// Общий дебаг
+	if len(v.Debug) != 0 {
+		buf.WriteString(" DEBUG: ")
+
+		for i := range v.Debug {
+			buf.WriteString(i + " : " + v.Debug[i])
+		}
+
+		buf.WriteByte(newline)
+	}
 
 	// Контрольные точки
 	for i := range v.Chain {

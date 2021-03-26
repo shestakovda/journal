@@ -7,18 +7,17 @@ import (
 )
 
 type FdbxCrashT struct {
-	Code    string
-	Link    string
-	Title   string
-	Status  uint16
+	Code string
+	Link string
+	Title string
+	Status uint16
 	Created int64
-	Steps   []*FdbxStepT
+	Steps []*FdbxStepT
+	Debug []*FdbxDebugT
 }
 
 func (t *FdbxCrashT) Pack(builder *flatbuffers.Builder) flatbuffers.UOffsetT {
-	if t == nil {
-		return 0
-	}
+	if t == nil { return 0 }
 	codeOffset := builder.CreateString(t.Code)
 	linkOffset := builder.CreateString(t.Link)
 	titleOffset := builder.CreateString(t.Title)
@@ -35,6 +34,19 @@ func (t *FdbxCrashT) Pack(builder *flatbuffers.Builder) flatbuffers.UOffsetT {
 		}
 		stepsOffset = builder.EndVector(stepsLength)
 	}
+	debugOffset := flatbuffers.UOffsetT(0)
+	if t.Debug != nil {
+		debugLength := len(t.Debug)
+		debugOffsets := make([]flatbuffers.UOffsetT, debugLength)
+		for j := 0; j < debugLength; j++ {
+			debugOffsets[j] = t.Debug[j].Pack(builder)
+		}
+		FdbxCrashStartDebugVector(builder, debugLength)
+		for j := debugLength - 1; j >= 0; j-- {
+			builder.PrependUOffsetT(debugOffsets[j])
+		}
+		debugOffset = builder.EndVector(debugLength)
+	}
 	FdbxCrashStart(builder)
 	FdbxCrashAddCode(builder, codeOffset)
 	FdbxCrashAddLink(builder, linkOffset)
@@ -42,6 +54,7 @@ func (t *FdbxCrashT) Pack(builder *flatbuffers.Builder) flatbuffers.UOffsetT {
 	FdbxCrashAddStatus(builder, t.Status)
 	FdbxCrashAddCreated(builder, t.Created)
 	FdbxCrashAddSteps(builder, stepsOffset)
+	FdbxCrashAddDebug(builder, debugOffset)
 	return FdbxCrashEnd(builder)
 }
 
@@ -58,12 +71,17 @@ func (rcv *FdbxCrash) UnPackTo(t *FdbxCrashT) {
 		rcv.Steps(&x, j)
 		t.Steps[j] = x.UnPack()
 	}
+	debugLength := rcv.DebugLength()
+	t.Debug = make([]*FdbxDebugT, debugLength)
+	for j := 0; j < debugLength; j++ {
+		x := FdbxDebug{}
+		rcv.Debug(&x, j)
+		t.Debug[j] = x.UnPack()
+	}
 }
 
 func (rcv *FdbxCrash) UnPack() *FdbxCrashT {
-	if rcv == nil {
-		return nil
-	}
+	if rcv == nil { return nil }
 	t := &FdbxCrashT{}
 	rcv.UnPackTo(t)
 	return t
@@ -157,8 +175,28 @@ func (rcv *FdbxCrash) StepsLength() int {
 	return 0
 }
 
+func (rcv *FdbxCrash) Debug(obj *FdbxDebug, j int) bool {
+	o := flatbuffers.UOffsetT(rcv._tab.Offset(16))
+	if o != 0 {
+		x := rcv._tab.Vector(o)
+		x += flatbuffers.UOffsetT(j) * 4
+		x = rcv._tab.Indirect(x)
+		obj.Init(rcv._tab.Bytes, x)
+		return true
+	}
+	return false
+}
+
+func (rcv *FdbxCrash) DebugLength() int {
+	o := flatbuffers.UOffsetT(rcv._tab.Offset(16))
+	if o != 0 {
+		return rcv._tab.VectorLen(o)
+	}
+	return 0
+}
+
 func FdbxCrashStart(builder *flatbuffers.Builder) {
-	builder.StartObject(6)
+	builder.StartObject(7)
 }
 func FdbxCrashAddCode(builder *flatbuffers.Builder, code flatbuffers.UOffsetT) {
 	builder.PrependUOffsetTSlot(0, flatbuffers.UOffsetT(code), 0)
@@ -179,6 +217,12 @@ func FdbxCrashAddSteps(builder *flatbuffers.Builder, steps flatbuffers.UOffsetT)
 	builder.PrependUOffsetTSlot(5, flatbuffers.UOffsetT(steps), 0)
 }
 func FdbxCrashStartStepsVector(builder *flatbuffers.Builder, numElems int) flatbuffers.UOffsetT {
+	return builder.StartVector(4, numElems, 4)
+}
+func FdbxCrashAddDebug(builder *flatbuffers.Builder, debug flatbuffers.UOffsetT) {
+	builder.PrependUOffsetTSlot(6, flatbuffers.UOffsetT(debug), 0)
+}
+func FdbxCrashStartDebugVector(builder *flatbuffers.Builder, numElems int) flatbuffers.UOffsetT {
 	return builder.StartVector(4, numElems, 4)
 }
 func FdbxCrashEnd(builder *flatbuffers.Builder) flatbuffers.UOffsetT {

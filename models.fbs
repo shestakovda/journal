@@ -54,4 +54,5 @@ table FdbxCrash {
     status:uint16;
     created:int64;
     steps:[FdbxStep];
+    debug:[FdbxDebug];
 }

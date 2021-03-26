@@ -62,8 +62,8 @@ func (f *fdbxFactory) ByDateCode(from, last time.Time, code string) (res []Model
 	} else {
 		rows, err = f.tbl.Select(f.tx).ByIndexRange(
 			IndexDate,
-			(fdbx.Time2Byte(from)),
-			(fdbx.Time2Byte(last)),
+			fdbx.Time2Byte(from),
+			fdbx.Time2Byte(last),
 		).All()
 	}
 

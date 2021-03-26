@@ -15,6 +15,7 @@ type Report struct {
 	Status  uint16
 	Created time.Time
 	Entries []*ReportEntry
+	Debug   map[string]string
 }
 
 // ReportEntry - основное представление ошибки в цепочке
@@ -42,6 +43,7 @@ type ViewMonitoring struct {
 	Code    string                 `json:"code"`
 	Link    string                 `json:"link,omitempty"`
 	Title   string                 `json:"title"`
+	Debug   map[string]string      `json:"debug"`
 	Created time.Time              `json:"created"`
 	Entries []*ViewMonitoringEntry `json:"entries,omitempty"`
 }
