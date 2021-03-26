@@ -99,6 +99,9 @@ func (s *InterfaceSuite) saveEntries(drv journal.Driver) (journal.Provider, *cra
 	s.entry2 = log2.Close()
 	s.entry3 = log3.Close()
 
+	// Удаляем, так как дебаг пишется только для ошибок
+	s.entry.Debug = nil
+
 	return log, rep
 }
 

@@ -84,6 +84,7 @@ func (p *provider) Model(mtp ModelType, mid string, txt string, args ...interfac
 
 func (p *provider) Crash(err error) (r *crash.Report) {
 	if r = p.crp.Report(err); r != nil {
+		r.Debug = p.dbg
 		p.stage(&Stage{Fail: r})
 	}
 	return r
@@ -110,8 +111,6 @@ func (p *provider) Close() *Entry {
 			e.Total = time.Since(p.start)
 		}
 	}
-
-	e.Debug = nil // убираем дебаг - он нужен только для ошибок
 
 	if p.crash {
 		p.log.Error("%s", e)
