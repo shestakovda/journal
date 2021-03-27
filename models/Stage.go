@@ -16,9 +16,7 @@ type StageT struct {
 }
 
 func (t *StageT) Pack(builder *flatbuffers.Builder) flatbuffers.UOffsetT {
-	if t == nil {
-		return 0
-	}
+	if t == nil { return 0 }
 	EnIDOffset := builder.CreateString(t.EnID)
 	TextOffset := builder.CreateString(t.Text)
 	StageStart(builder)
@@ -41,9 +39,7 @@ func (rcv *Stage) UnPackTo(t *StageT) {
 }
 
 func (rcv *Stage) UnPack() *StageT {
-	if rcv == nil {
-		return nil
-	}
+	if rcv == nil { return nil }
 	t := &StageT{}
 	rcv.UnPackTo(t)
 	return t

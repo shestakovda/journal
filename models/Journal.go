@@ -7,17 +7,15 @@ import (
 )
 
 type JournalT struct {
-	ID      []byte
-	Start   uint64
-	Total   uint64
-	Chain   []*StageT
+	ID []byte
+	Start uint64
+	Total uint64
+	Chain []*StageT
 	Service string
 }
 
 func (t *JournalT) Pack(builder *flatbuffers.Builder) flatbuffers.UOffsetT {
-	if t == nil {
-		return 0
-	}
+	if t == nil { return 0 }
 	IDOffset := flatbuffers.UOffsetT(0)
 	if t.ID != nil {
 		IDOffset = builder.CreateByteString(t.ID)
@@ -60,9 +58,7 @@ func (rcv *Journal) UnPackTo(t *JournalT) {
 }
 
 func (rcv *Journal) UnPack() *JournalT {
-	if rcv == nil {
-		return nil
-	}
+	if rcv == nil { return nil }
 	t := &JournalT{}
 	rcv.UnPackTo(t)
 	return t

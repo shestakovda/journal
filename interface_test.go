@@ -52,13 +52,14 @@ func (s *InterfaceSuite) TestWorkflowFdbx() {
 
 	drv := journal.NewFdbxDriver(dbc, 0x1234, 0x4321)
 	fac := journal.NewFdbxFactory(tx, 0x1234, 0x4321)
+	crp := crash.NewFdbxFactory(tx, 0x4321)
 
 	log, rep := s.saveEntries(drv)
 
 	// Сохраняем данные по логам
 	// Где-то в другом месте его можно получить по айдишке
 	// В след. раз загружаем этот курсор и смотрим, чот там есть
-	s.checkCursor(fac, s.checkSaved(fac, log, rep))
+	s.checkCursor(fac, s.checkSaved(fac, crp, log, rep))
 }
 
 func (s *InterfaceSuite) saveEntries(drv journal.Driver) (journal.Provider, *crash.Report) {
@@ -79,6 +80,17 @@ func (s *InterfaceSuite) saveEntries(drv journal.Driver) (journal.Provider, *cra
 	log2.Model(s.mt, "eventID", "some %s", "comment2")
 	log3.Model(s.mt, "eventID", "some %s", "comment3")
 
+	// Ошибка должна быть с дебагом
+	log.Debug(map[string]string{
+		"TEST": "!!!",
+	})
+
+	// И еще парочку
+	log.Debug(map[string]string{
+		"TEST!":   "!",
+		"TEST!!!": "",
+	})
+
 	// Должны записать данные о модели с ошибкой
 	rep := log.Crash(journal.ErrTest.WithReason(errx.ErrForbidden))
 
@@ -87,10 +99,14 @@ func (s *InterfaceSuite) saveEntries(drv journal.Driver) (journal.Provider, *cra
 	s.entry2 = log2.Close()
 	s.entry3 = log3.Close()
 
+	// Удаляем, так как дебаг пишется только для ошибок
+	s.entry.Debug = nil
+
 	return log, rep
 }
 
-func (s *InterfaceSuite) checkSaved(fac journal.Factory, log journal.Provider, rep *crash.Report) string {
+func (s *InterfaceSuite) checkSaved(
+	fac journal.Factory, crp crash.Factory, log journal.Provider, rep *crash.Report) string {
 	var exp error
 	var cur journal.Cursor
 
@@ -125,6 +141,25 @@ func (s *InterfaceSuite) checkSaved(fac journal.Factory, log journal.Provider, r
 		if row, err := mods[0].Export(true); s.NoError(err) {
 			s.Equal(s.entry, row)
 		}
+	}
+
+	// Попробуем найти по модели ошибки
+	if mods, exp := fac.ByModel(journal.ModelTypeCrash, rep.ID); s.NoError(exp) && s.Len(mods, 1) {
+		if row, err := mods[0].Export(true); s.NoError(err) {
+			s.Equal(s.entry, row)
+		}
+	}
+
+	// Проверяем экспорт в мониторинг
+	if mod, exp := crp.ByID(rep.ID); s.NoError(exp) {
+		row := mod.ExportMonitoring()
+
+		// Проверяем, что дебаг у ошибки на месте
+		s.Equal(row.Debug, map[string]string{
+			"TEST!!!": "",
+			"TEST!":   "!",
+			"TEST":    "!!!",
+		})
 	}
 
 	// Попробуем найти по дате

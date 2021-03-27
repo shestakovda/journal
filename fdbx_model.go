@@ -148,6 +148,7 @@ func (m *fdbxModel) setEntry(e *Entry) (reps []*crash.Report, err error) {
 		m.chain[i] = newFdbxStage(e.Chain[i])
 
 		if e.Chain[i].Fail != nil {
+			e.Chain[i].Fail.Debug = e.Debug // прокидываем дебаг для ошибки
 			reps = append(reps, e.Chain[i].Fail)
 		}
 	}
