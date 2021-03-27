@@ -179,5 +179,4 @@ func (s *FdbSuite) TestFormat() {
 |       stack 3-1
 |       stack 3-2
 `, fmt.Sprintf("\n%+v\n", s.rep))
-
 }

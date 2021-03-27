@@ -183,7 +183,7 @@ type Cursor interface {
 	ID() string
 	Empty() bool
 
-	// Подгрузка следующей страницы (но, возможно, с изменением размера)
+	// NextPage - Подгрузка следующей страницы (но, возможно, с изменением размера)
 	NextPage(size uint, services ...string) ([]Model, error)
 }
 

@@ -12,6 +12,7 @@ type ProviderSuite struct {
 	suite.Suite
 }
 
+//nolint:funlen
 func (s *ProviderSuite) TestReport() {
 	// Накидываем ошибок
 	someError1 := errx.New("some error 1").WithReason(assert.AnError)

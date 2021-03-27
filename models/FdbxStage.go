@@ -14,7 +14,9 @@ type FdbxStageT struct {
 }
 
 func (t *FdbxStageT) Pack(builder *flatbuffers.Builder) flatbuffers.UOffsetT {
-	if t == nil { return 0 }
+	if t == nil {
+		return 0
+	}
 	midOffset := builder.CreateString(t.Mid)
 	msgOffset := builder.CreateString(t.Msg)
 	FdbxStageStart(builder)
@@ -33,7 +35,9 @@ func (rcv *FdbxStage) UnPackTo(t *FdbxStageT) {
 }
 
 func (rcv *FdbxStage) UnPack() *FdbxStageT {
-	if rcv == nil { return nil }
+	if rcv == nil {
+		return nil
+	}
 	t := &FdbxStageT{}
 	rcv.UnPackTo(t)
 	return t

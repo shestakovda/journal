@@ -7,8 +7,9 @@ import (
 
 	"github.com/shestakovda/errx"
 	"github.com/shestakovda/fdbx"
-	"github.com/shestakovda/journal/crash"
 	"github.com/stretchr/testify/suite"
+
+	"github.com/shestakovda/journal/crash"
 )
 
 const (
@@ -53,6 +54,7 @@ func (s *InterfaceSuite) SetupTest() {
 	s.prv.Register(http.StatusForbidden, testNum, testTitle, ErrForbidden)
 }
 
+//nolint:funlen
 func (s *InterfaceSuite) TestWorkflow() {
 	const msg = "Тебе сюда нельзя"
 

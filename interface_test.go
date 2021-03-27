@@ -105,6 +105,7 @@ func (s *InterfaceSuite) saveEntries(drv journal.Driver) (journal.Provider, *cra
 	return log, rep
 }
 
+//nolint:funlen
 func (s *InterfaceSuite) checkSaved(
 	fac journal.Factory, crp crash.Factory, log journal.Provider, rep *crash.Report) string {
 	var exp error

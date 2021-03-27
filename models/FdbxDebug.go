@@ -12,7 +12,9 @@ type FdbxDebugT struct {
 }
 
 func (t *FdbxDebugT) Pack(builder *flatbuffers.Builder) flatbuffers.UOffsetT {
-	if t == nil { return 0 }
+	if t == nil {
+		return 0
+	}
 	nameOffset := builder.CreateString(t.Name)
 	textOffset := builder.CreateString(t.Text)
 	FdbxDebugStart(builder)
@@ -27,7 +29,9 @@ func (rcv *FdbxDebug) UnPackTo(t *FdbxDebugT) {
 }
 
 func (rcv *FdbxDebug) UnPack() *FdbxDebugT {
-	if rcv == nil { return nil }
+	if rcv == nil {
+		return nil
+	}
 	t := &FdbxDebugT{}
 	rcv.UnPackTo(t)
 	return t

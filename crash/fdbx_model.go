@@ -6,8 +6,9 @@ import (
 
 	"github.com/apple/foundationdb/bindings/go/src/fdb"
 	"github.com/shestakovda/fdbx/v2"
-	"github.com/shestakovda/journal/models"
 	"github.com/shestakovda/typex"
+
+	"github.com/shestakovda/journal/models"
 )
 
 func newFdbxModel(fac *fdbxFactory) *fdbxModel {

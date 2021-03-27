@@ -4,8 +4,7 @@ import (
 	"github.com/shestakovda/errx"
 )
 
-// TODO: Deprecated
-var DatabaseAPI uint16 = 1
+var DatabaseAPI uint16 = 1 // TODO: Deprecated
 
 const BlankLink = "about:blank"
 const EnvBaseURL = "ERR_BASE_URL"

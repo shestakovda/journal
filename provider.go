@@ -40,6 +40,7 @@ func NewProvider(max int, crp crash.Provider, drv Driver, log Logger, srv string
 	return p
 }
 
+//goland:noinspection GoLinterLocal
 type provider struct {
 	sync.RWMutex
 

@@ -102,7 +102,7 @@ func (r *Report) Format(f fmt.State, verb rune) {
 	}
 }
 
-func (r *ReportEntry) Format(f fmt.State, verb rune) {
+func (r *ReportEntry) Format(f fmt.State, _ rune) {
 	// Сначала всегда на той же строке основное сообщение
 	fmt.Fprintf(f, "\n|-> %s", r.Text)
 

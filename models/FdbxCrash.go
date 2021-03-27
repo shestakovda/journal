@@ -7,17 +7,19 @@ import (
 )
 
 type FdbxCrashT struct {
-	Code string
-	Link string
-	Title string
-	Status uint16
+	Code    string
+	Link    string
+	Title   string
+	Status  uint16
 	Created int64
-	Steps []*FdbxStepT
-	Debug []*FdbxDebugT
+	Steps   []*FdbxStepT
+	Debug   []*FdbxDebugT
 }
 
 func (t *FdbxCrashT) Pack(builder *flatbuffers.Builder) flatbuffers.UOffsetT {
-	if t == nil { return 0 }
+	if t == nil {
+		return 0
+	}
 	codeOffset := builder.CreateString(t.Code)
 	linkOffset := builder.CreateString(t.Link)
 	titleOffset := builder.CreateString(t.Title)
@@ -81,7 +83,9 @@ func (rcv *FdbxCrash) UnPackTo(t *FdbxCrashT) {
 }
 
 func (rcv *FdbxCrash) UnPack() *FdbxCrashT {
-	if rcv == nil { return nil }
+	if rcv == nil {
+		return nil
+	}
 	t := &FdbxCrashT{}
 	rcv.UnPackTo(t)
 	return t

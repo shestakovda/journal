@@ -7,15 +7,17 @@ import (
 )
 
 type FdbxJournalT struct {
-	Start int64
-	Total int64
-	Chain []*FdbxStageT
+	Start   int64
+	Total   int64
+	Chain   []*FdbxStageT
 	Service string
-	Host string
+	Host    string
 }
 
 func (t *FdbxJournalT) Pack(builder *flatbuffers.Builder) flatbuffers.UOffsetT {
-	if t == nil { return 0 }
+	if t == nil {
+		return 0
+	}
 	chainOffset := flatbuffers.UOffsetT(0)
 	if t.Chain != nil {
 		chainLength := len(t.Chain)
@@ -55,7 +57,9 @@ func (rcv *FdbxJournal) UnPackTo(t *FdbxJournalT) {
 }
 
 func (rcv *FdbxJournal) UnPack() *FdbxJournalT {
-	if rcv == nil { return nil }
+	if rcv == nil {
+		return nil
+	}
 	t := &FdbxJournalT{}
 	rcv.UnPackTo(t)
 	return t

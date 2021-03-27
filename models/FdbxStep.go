@@ -7,14 +7,16 @@ import (
 )
 
 type FdbxStepT struct {
-	Text string
+	Text   string
 	Detail string
-	Stack []string
-	Debug []*FdbxDebugT
+	Stack  []string
+	Debug  []*FdbxDebugT
 }
 
 func (t *FdbxStepT) Pack(builder *flatbuffers.Builder) flatbuffers.UOffsetT {
-	if t == nil { return 0 }
+	if t == nil {
+		return 0
+	}
 	textOffset := builder.CreateString(t.Text)
 	detailOffset := builder.CreateString(t.Detail)
 	stackOffset := flatbuffers.UOffsetT(0)
@@ -69,7 +71,9 @@ func (rcv *FdbxStep) UnPackTo(t *FdbxStepT) {
 }
 
 func (rcv *FdbxStep) UnPack() *FdbxStepT {
-	if rcv == nil { return nil }
+	if rcv == nil {
+		return nil
+	}
 	t := &FdbxStepT{}
 	rcv.UnPackTo(t)
 	return t

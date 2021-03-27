@@ -11,8 +11,6 @@ import (
 	"github.com/shestakovda/typex"
 )
 
-const urlTemplate = "https://test.platform.astral.ru/documentation?tab=4#api4001"
-
 // NewTestProvider - без адреса, только для тестов
 func NewTestProvider() Provider {
 	return &provider{
@@ -26,6 +24,7 @@ func NewTestProvider() Provider {
 
 	* srv - код текущего сервиса, для формирования кодов ошибок
 */
+//goland:noinspection GoUnusedExportedFunction
 func NewProvider(env envx.Provider, srv string) (_ Provider, err error) {
 	p := &provider{
 		srv:  srv,

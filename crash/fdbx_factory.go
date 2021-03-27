@@ -66,6 +66,9 @@ func (f *fdbxFactory) ByDateCode(from, last time.Time, code string) (res []Model
 			fdbx.Time2Byte(last),
 		).All()
 	}
+	if err != nil {
+		return nil, ErrSelect.WithReason(err)
+	}
 
 	res = make([]Model, len(rows))
 	for i := range rows {
