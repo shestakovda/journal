@@ -102,6 +102,12 @@ type Provider interface {
 		* Повторяющиеся - перезаписываются последними данными.
 	*/
 	Debug(dbg map[string]string)
+
+	/*
+		OnCrash - установка обработчика, который будет вызываться при Crash,
+		когда возвращаемый crash.Report не равен nil
+	*/
+	OnCrash(handler CrashHandler)
 }
 
 // Driver - помощник сохранения журнала для провайдера
@@ -192,6 +198,9 @@ type Logger interface {
 	Print(tpl string, args ...interface{})
 	Error(tpl string, args ...interface{})
 }
+
+// CrashHandler - обработчик вызываемый при Crash
+type CrashHandler func(report *crash.Report, chain []*Stage)
 
 // Ошибки реализаций
 var (
