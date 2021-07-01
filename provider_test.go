@@ -2,6 +2,7 @@ package journal
 
 import (
 	"net/http"
+	"sync"
 
 	"github.com/shestakovda/errx"
 	"github.com/stretchr/testify/assert"
@@ -74,6 +75,26 @@ func (s *ProviderSuite) TestPrint() {
 	// Если хочется посмотреть на лог вживую
 	// glog.Errorf(s.log.Result)
 	// s.True(false)
+}
+
+func (s *ProviderSuite) TestOnCrash() {
+	wg := sync.WaitGroup{}
+	wg.Add(2)
+
+	onCrash := func(report *crash.Report, chain []*Stage) {
+		s.Len(chain, 1)
+		s.NotNil(report)
+		wg.Done()
+	}
+
+	s.prv.OnCrash(onCrash)
+	s.prv.Crash(ErrTest)
+
+	// Тестируем копирование обработчика OnCrash()
+	prv2 := s.prv.Clone()
+	prv2.Crash(ErrTest.WithReason(errx.ErrForbidden))
+
+	wg.Wait()
 }
 
 type MockDriver struct{ mock.Mock }
