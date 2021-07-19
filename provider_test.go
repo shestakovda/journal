@@ -79,20 +79,35 @@ func (s *ProviderSuite) TestPrint() {
 
 func (s *ProviderSuite) TestOnCrash() {
 	wg := sync.WaitGroup{}
-	wg.Add(2)
+	wg.Add(3) // должно быть 3 вызова
+	steps := ""
 
 	onCrash := func(report *crash.Report, chain []*Stage) {
+		defer wg.Done()
 		s.Len(chain, 1)
 		s.NotNil(report)
-		wg.Done()
+		steps += "1"
 	}
-
 	s.prv.OnCrash(onCrash)
+
+	// Первый запуск - только один обработчик
 	s.prv.Crash(ErrTest)
+	s.Require().Equal("1", steps)
+
+	onCrash2 := func(report *crash.Report, chain []*Stage) {
+		defer wg.Done()
+		s.Len(chain, 1)
+		s.NotNil(report)
+		steps += "2"
+	}
+	s.prv.OnCrash(onCrash2)
 
 	// Тестируем копирование обработчика OnCrash()
 	prv2 := s.prv.Clone()
+
+	// Второй запуск - два (скопированных) обработчика
 	prv2.Crash(ErrTest.WithReason(errx.ErrForbidden))
+	s.Require().Equal("112", steps)
 
 	wg.Wait()
 }

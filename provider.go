@@ -50,15 +50,16 @@ type provider struct {
 	chain []*Stage
 	host  string
 
-	drv            Driver
-	log            Logger
-	srv            string
-	max            int
-	lvl            int
-	opt            bool
-	crp            crash.Provider
-	dbg            map[string]string
-	OnCrashHandler CrashHandler
+	drv Driver
+	log Logger
+	srv string
+	max int
+	lvl int
+	opt bool
+	crp crash.Provider
+	dbg map[string]string
+
+	onCrash []CrashHandler
 }
 
 func (p *provider) V(lvl int) bool {
@@ -89,15 +90,17 @@ func (p *provider) Crash(err error) (r *crash.Report) {
 		r.Debug = p.dbg
 		p.stage(&Stage{Fail: r})
 
-		if p.OnCrashHandler != nil {
-			p.OnCrashHandler(r, p.chain)
+		for i := range p.onCrash {
+			p.onCrash[i](r, p.chain)
 		}
 	}
 	return r
 }
 
 func (p *provider) OnCrash(handler CrashHandler) {
-	p.OnCrashHandler = handler
+	if handler != nil {
+		p.onCrash = append(p.onCrash, handler)
+	}
 }
 
 func (p *provider) Close() *Entry {
@@ -134,7 +137,9 @@ func (p *provider) Close() *Entry {
 func (p *provider) Clone() Provider {
 	prv := NewProvider(p.max, p.crp, p.drv, p.log, p.srv)
 	prv.SaveOnlyError(p.opt)
-	prv.OnCrash(p.OnCrashHandler)
+	for i := range p.onCrash {
+		prv.OnCrash(p.onCrash[i])
+	}
 	return prv
 }
 
