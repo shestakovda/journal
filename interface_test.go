@@ -94,6 +94,31 @@ func (s *InterfaceSuite) saveEntries(drv journal.Driver) (journal.Provider, *cra
 	// Должны записать данные о модели с ошибкой
 	rep := log.Crash(journal.ErrTest.WithReason(errx.ErrForbidden))
 
+	// Тестовые данные для тестирования метода Dump
+	dumpMid := "dump"
+	goodDumpData := map[string]string{"test": "test"}
+	badDumpData := map[string]chan int{"test": make(chan int)}
+
+	// Тестируем работоспособность метода Dump
+	log.Dump(s.mt, dumpMid, goodDumpData)               // Делаем дамп одной модели
+	log.Dump(s.mt, dumpMid, goodDumpData, goodDumpData) // Делаем дамп нескольких моделей
+	log2.Dump(s.mt, dumpMid, "")                        // Делаем дамп пустых данных
+	log2.Dump(s.mt, "", goodDumpData)                   // Делаем дамп без идентификатора модели
+	log3.Dump(s.mt, dumpMid, badDumpData)               // Делаем дамп, который не сработает и будет вызван Crash
+
+	// Тестовые данные для тестирования метода Diff
+	diffMid := "diff"
+	oldDiffData := map[string]string{"key": "value"}
+	newDiffData := map[string]string{"notKey": "notValue"}
+
+	// Тестируем работоспособность метода Dump
+	log.Diff(s.mt, diffMid, oldDiffData, newDiffData) // Делаем логирование изменений
+	log.Diff(s.mt, diffMid, oldDiffData, oldDiffData) // Делаем логирование одинаковых моделей
+	log2.Diff(s.mt, diffMid, nil, nil)                // Делаем логирование без моделей
+	log2.Diff(s.mt, diffMid, oldDiffData, nil)        // Делаем логирование без новой модели
+	log3.Diff(s.mt, diffMid, nil, newDiffData)        // Делаем логирование бзе старой модели
+	log3.Diff(s.mt, "", oldDiffData, newDiffData)     // Делаем логирование без идентификатора модели
+
 	// Должны записать в лог и вызвать сохранение, несколько раз желательно, чтобы курсор работал
 	s.entry = log.Close()
 	s.entry2 = log2.Close()
@@ -134,14 +159,10 @@ func (s *InterfaceSuite) checkSaved(
 		s.Equal("event", mon.Stages[2].Type)
 		s.Equal("eventID", mon.Stages[2].EnID)
 		s.Equal("crash", mon.Stages[3].Type)
+		s.Equal("dump", mon.Stages[4].EnID)
+		s.Equal("{\n\t\"test\": \"test\"\n}", mon.Stages[4].Name)
+		s.Equal("diff", mon.Stages[7].EnID)
 		s.Equal(rep.ID, mon.Stages[3].EnID)
-	}
-
-	// Попробуем найти по модели ошибки
-	if mods, exp := fac.ByModel(journal.ModelTypeCrash, rep.ID); s.NoError(exp) && s.Len(mods, 1) {
-		if row, err := mods[0].Export(true); s.NoError(err) {
-			s.Equal(s.entry, row)
-		}
 	}
 
 	// Попробуем найти по модели ошибки
@@ -182,6 +203,28 @@ func (s *InterfaceSuite) checkSaved(
 
 	// Попробуем найти по модели
 	if cur, exp = fac.ByModelDate(s.mt, "eventID", from, to, 10); s.NoError(exp) {
+		if mods, exp := cur.NextPage(1); s.NoError(exp) && s.Len(mods, 1) {
+			if row, err := mods[0].Export(true); s.NoError(err) {
+				s.Equal(s.entry3, row)
+			}
+		}
+	}
+
+	s.False(cur.Empty())
+
+	// Попробуем найти дампы по идентификатору модели
+	if cur, exp = fac.ByModelDate(s.mt, "dump", from, to, 10); s.NoError(exp) {
+		if mods, exp := cur.NextPage(1); s.NoError(exp) && s.Len(mods, 1) {
+			if row, err := mods[0].Export(true); s.NoError(err) {
+				s.Equal(s.entry2, row)
+			}
+		}
+	}
+
+	s.False(cur.Empty())
+
+	// Попробуем найти логирования изменений по идентификатору модели
+	if cur, exp = fac.ByModelDate(s.mt, "diff", from, to, 10); s.NoError(exp) {
 		if mods, exp := cur.NextPage(1); s.NoError(exp) && s.Len(mods, 1) {
 			if row, err := mods[0].Export(true); s.NoError(err) {
 				s.Equal(s.entry3, row)
