@@ -62,7 +62,8 @@ func (s *InterfaceSuite) TestWorkflowFdbx() {
 	s.checkCursor(fac, s.checkSaved(fac, crp, log, rep))
 
 	// Тестирование корректного удаления
-	s.checkDelete(fac, drv)
+	s.checkDeleteByModel(fac, drv)
+	s.checkDeleteByFactory(fac, drv)
 }
 
 func (s *InterfaceSuite) saveEntries(drv journal.Driver) (journal.Provider, *crash.Report) {
@@ -263,7 +264,7 @@ func (s *InterfaceSuite) checkCursor(fac journal.Factory, cid string) {
 	s.True(cur.Empty())
 }
 
-func (s *InterfaceSuite) checkDelete(fac journal.Factory, drv journal.Driver) {
+func (s *InterfaceSuite) checkDeleteByModel(fac journal.Factory, drv journal.Driver) {
 	// Попытка удалить только что созданную, но не сохранённую модель
 	s.NoError(fac.New().Delete())
 
@@ -272,16 +273,53 @@ func (s *InterfaceSuite) checkDelete(fac journal.Factory, drv journal.Driver) {
 	log.Print("test log")
 	newEntry := log.Close()
 
-	// Честной удаление созданной записи
+	// Честное удаление созданной записи
 	model, err := fac.ByID(newEntry.ID)
 	s.NoError(err)
 	s.NoError(model.Delete())
 
-	// Попытка удалить уже удалённую записи
+	// Попытка удалить уже удалённую запись
 	s.NoError(model.Delete())
 
-	// Убеждаемся, что данную запись больше загрузить нельзя
+	// Убеждаемся, что удалённую запись больше загрузить нельзя
 	model, err = fac.ByID(newEntry.ID)
+	s.True(errx.Is(err, journal.ErrNotFound))
+	s.Nil(model)
+}
+
+func (s *InterfaceSuite) checkDeleteByFactory(fac journal.Factory, drv journal.Driver) {
+	// Попытка удалить ничего
+	s.NoError(fac.Delete())
+
+	// Попытка удалить несуществующую модель
+	s.NoError(fac.Delete(typex.NewUUID().String()))
+
+	// Ошибка валидации: не UUID
+	s.True(errx.Is(fac.Delete("not UUID"), journal.ErrValidate))
+
+	// Создаём новую запись 1
+	log := journal.NewProvider(1, s.crp, drv, nil, "")
+	log.Print("test log")
+	newEntry := log.Close()
+
+	// Создаём новую запись 2
+	log2 := journal.NewProvider(1, s.crp, drv, nil, "")
+	log2.Print("test log 2")
+	newEntry2 := log2.Close()
+
+	// Честное удаление 2 записей
+	err := fac.Delete(newEntry.ID, newEntry2.ID)
+	s.NoError(err)
+
+	// Попытка удалить уже удалённые записи
+	err = fac.Delete(newEntry.ID, newEntry2.ID)
+
+	// Убеждаемся, что удалённые записи больше загрузить нельзя
+	model, err := fac.ByID(newEntry.ID)
+	s.True(errx.Is(err, journal.ErrNotFound))
+	s.Nil(model)
+
+	model, err = fac.ByID(newEntry2.ID)
 	s.True(errx.Is(err, journal.ErrNotFound))
 	s.Nil(model)
 }
