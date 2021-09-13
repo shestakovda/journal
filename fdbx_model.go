@@ -64,6 +64,19 @@ func (m *fdbxModel) Import(e *Entry) (err error) {
 	return m.save()
 }
 
+func (m *fdbxModel) Delete() (err error) {
+	// Если это пустая модель, для которой не делали импорт, то и удалять ничего не требуется
+	if m.uid.IsEmpty(){
+		return nil
+	}
+
+	if err = m.fac.tbl.Delete(m.fac.tx, fdb.Key(m.uid)); err != nil {
+		return ErrDelete.WithReason(err)
+	}
+
+	return nil
+}
+
 func (m *fdbxModel) Export(withCrash bool) (e *Entry, err error) {
 	var crm crash.Model
 

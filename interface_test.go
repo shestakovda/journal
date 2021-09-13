@@ -58,8 +58,11 @@ func (s *InterfaceSuite) TestWorkflowFdbx() {
 
 	// Сохраняем данные по логам
 	// Где-то в другом месте его можно получить по айдишке
-	// В след. раз загружаем этот курсор и смотрим, чот там есть
+	// В след. раз загружаем этот курсор и смотрим, что там есть
 	s.checkCursor(fac, s.checkSaved(fac, crp, log, rep))
+
+	// Тестирование корректного удаления
+	s.checkDelete(fac, drv)
 }
 
 func (s *InterfaceSuite) saveEntries(drv journal.Driver) (journal.Provider, *crash.Report) {
@@ -258,6 +261,29 @@ func (s *InterfaceSuite) checkCursor(fac journal.Factory, cid string) {
 	}
 
 	s.True(cur.Empty())
+}
+
+func (s *InterfaceSuite) checkDelete(fac journal.Factory, drv journal.Driver) {
+	// Попытка удалить только что созданную, но не сохранённую модель
+	s.NoError(fac.New().Delete())
+
+	// Создаём новую запись
+	log := journal.NewProvider(1, s.crp, drv, nil, "")
+	log.Print("test log")
+	newEntry := log.Close()
+
+	// Честной удаление созданной записи
+	model, err := fac.ByID(newEntry.ID)
+	s.NoError(err)
+	s.NoError(model.Delete())
+
+	// Попытка удалить уже удалённую записи
+	s.NoError(model.Delete())
+
+	// Убеждаемся, что данную запись больше загрузить нельзя
+	model, err = fac.ByID(newEntry.ID)
+	s.True(errx.Is(err, journal.ErrNotFound))
+	s.Nil(model)
 }
 
 type mType struct {

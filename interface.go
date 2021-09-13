@@ -193,6 +193,15 @@ type Model interface {
 	Import(*Entry) error
 
 	/*
+		Delete - удаление данных из БД
+
+		* Если модель уже удалена, то ошибки не будет
+		* Если произошла какая-то ошибка при удалении, то возвращается ErrDelete
+		* Не удаляет дочерние сrash
+	*/
+	Delete() error
+
+	/*
 		Export - основное представление записи журнала.
 	*/
 	Export(withCrash bool) (*Entry, error)
@@ -230,6 +239,7 @@ type CrashHandler func(report *crash.Report, chain []*Stage)
 var (
 	ErrSelect   = errx.New("Ошибка загрузки записи журнала").WithReason(errx.ErrInternal)
 	ErrInsert   = errx.New("Ошибка сохранения записи журнала").WithReason(errx.ErrInternal)
+	ErrDelete   = errx.New("Ошибка удаления записи журнала").WithReason(errx.ErrInternal)
 	ErrNotFound = errx.New("Не найдены подходящие записи журнала").WithReason(errx.ErrNotFound)
 	ErrValidate = errx.New("Ошибка валидации входных данных").WithReason(errx.ErrBadRequest)
 )
