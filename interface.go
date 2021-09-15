@@ -175,6 +175,11 @@ type Factory interface {
 	ByDate(from, to time.Time, page uint, services ...string) (_ Cursor, err error)
 
 	/*
+		ByDateSortable - формирование курсора перебора по дате c возможностью указания направления сортировки
+	*/
+	ByDateSortable(from, to time.Time, page uint, desc bool) (_ Cursor, err error)
+
+	/*
 		ByModelDate - формирование курсора перебора по модели и дате
 	*/
 	ByModelDate(mtp ModelType, mid string, from, to time.Time, page uint, services ...string) (_ Cursor, err error)

@@ -205,6 +205,36 @@ func (s *InterfaceSuite) checkSaved(
 		}
 	}
 
+	// Выборка по дате по убыванию
+	if cur, exp = fac.ByDateSortable(from, to, 10, true); s.NoError(exp) {
+		if mods, exp := cur.NextPage(10); s.NoError(exp) && s.Len(mods, 3) {
+			if row, err := mods[0].Export(true); s.NoError(err) {
+				s.Equal(s.entry3.ID, row.ID)
+			}
+			if row, err := mods[1].Export(true); s.NoError(err) {
+				s.Equal(s.entry2.ID, row.ID)
+			}
+			if row, err := mods[2].Export(true); s.NoError(err) {
+				s.Equal(s.entry.ID, row.ID)
+			}
+		}
+	}
+
+	// Выборка по дате по возрастанию
+	if cur, exp = fac.ByDateSortable(from, to, 10, false); s.NoError(exp) {
+		if mods, exp := cur.NextPage(10); s.NoError(exp) && s.Len(mods, 3) {
+			if row, err := mods[0].Export(true); s.NoError(err) {
+				s.Equal(s.entry.ID, row.ID)
+			}
+			if row, err := mods[1].Export(true); s.NoError(err) {
+				s.Equal(s.entry2.ID, row.ID)
+			}
+			if row, err := mods[2].Export(true); s.NoError(err) {
+				s.Equal(s.entry3.ID, row.ID)
+			}
+		}
+	}
+
 	// Попробуем найти по модели
 	if cur, exp = fac.ByModelDate(s.mt, "eventID", from, to, 10); s.NoError(exp) {
 		if mods, exp := cur.NextPage(1); s.NoError(exp) && s.Len(mods, 1) {

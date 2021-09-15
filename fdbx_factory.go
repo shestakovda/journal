@@ -99,6 +99,30 @@ func (f *fdbxFactory) ByDate(from, last time.Time, page uint, _ ...string) (_ Cu
 	return newFdbxCursor(f, qid, que), nil
 }
 
+func (f *fdbxFactory) ByDateSortable(from, to time.Time, page uint, desc bool) (_ Cursor, err error) {
+	var qid string
+
+	que := f.tbl.Select(f.tx).Page(int(page)).ByIndexRange(
+		IndexStart,
+		fdbx.Time2Byte(from),
+		fdbx.Time2Byte(to),
+	)
+
+	if desc {
+		que.Reverse()
+	}
+
+	if qid, err = que.Save(); err != nil {
+		return nil, errx.ErrInternal.WithReason(err).WithDebug(errx.Debug{
+			"От момента":      from.UTC().Format(time.RFC3339Nano),
+			"До момента":      to.UTC().Format(time.RFC3339Nano),
+			"Размер страницы": page,
+		})
+	}
+
+	return newFdbxCursor(f, qid, que), nil
+}
+
 func (f *fdbxFactory) ByModelDate(
 	mtp ModelType,
 	mid string,
