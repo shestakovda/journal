@@ -66,7 +66,7 @@ func (m *fdbxModel) Import(e *Entry) (err error) {
 
 func (m *fdbxModel) Delete() (err error) {
 	// Если это пустая модель, для которой не делали импорт, то и удалять ничего не требуется
-	if m.uid.IsEmpty(){
+	if m.uid.IsEmpty() {
 		return nil
 	}
 

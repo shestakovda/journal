@@ -14,3 +14,5 @@ require (
 	github.com/shestakovda/typex v1.0.1
 	github.com/stretchr/testify v1.6.1
 )
+
+replace github.com/shestakovda/fdbx/v2 v2.0.2 => github.com/stejls/fdbx/v2 v2.0.4

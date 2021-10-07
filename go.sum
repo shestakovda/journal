@@ -33,11 +33,11 @@ github.com/shestakovda/errx v1.2.0 h1:wEMc40v7KcKgit5KuVY0zTl5gTAgm708V1KQQo+MXJ
 github.com/shestakovda/errx v1.2.0/go.mod h1:HBJCwRW/mX8OWomEM/eFJan2D8+2qUtcQTU7ikUX7sA=
 github.com/shestakovda/fdbx v0.3.9 h1:UP9Pgww+2nRmts31l0Itivm3inyDUa5WdNVxJw/Y4LA=
 github.com/shestakovda/fdbx v0.3.9/go.mod h1:0cQ96pg8Tai/vT3g+60p7cW+0kEoMISZPHRe4WiUXNE=
-github.com/shestakovda/fdbx/v2 v2.0.2 h1:GvmR/rr4H9rymV8zjFWd4ZRBQfZRDriMCJ5JgIic1sc=
-github.com/shestakovda/fdbx/v2 v2.0.2/go.mod h1:F0G395sO6AUkyyVMIwEH/JWnqrR1dNb8oeCP7wUkU4M=
 github.com/shestakovda/typex v1.0.0/go.mod h1:Pjz2Ikohi4w39r4psqbBPD2THJhhiv6b7QUxtem+IZg=
 github.com/shestakovda/typex v1.0.1 h1:FPaDOeO7PfEMRByACnzo/yrCOoF2kyeqZL7PY/y+MXQ=
 github.com/shestakovda/typex v1.0.1/go.mod h1:Pjz2Ikohi4w39r4psqbBPD2THJhhiv6b7QUxtem+IZg=
+github.com/stejls/fdbx/v2 v2.0.4 h1:AMzh2CvUHIVS7AJC2qtvn2AbwJvMCpyXDvGAUoTb68Q=
+github.com/stejls/fdbx/v2 v2.0.4/go.mod h1:4gobdPNwNZaNF9+asutolvMs+k9Vu1E/ecic/BB8bOU=
 github.com/stretchr/objx v0.1.0 h1:4G4v2dO3VZwixGIRoQ5Lfboy6nUhCyYzaqnIAPPhYs4=
 github.com/stretchr/objx v0.1.0/go.mod h1:HFkY916IF+rwdDfMAkV7OtwuqBVzrE8GR6GFx+wExME=
 github.com/stretchr/testify v1.4.0/go.mod h1:j7eGeouHqKxXV5pUuKE4zz7dFj8WfuZ+81PSLYec5m4=
