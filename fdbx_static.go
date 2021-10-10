@@ -5,12 +5,14 @@ import (
 
 	"github.com/shestakovda/fdbx/v2/db"
 	"github.com/shestakovda/fdbx/v2/orm"
-
-	"github.com/shestakovda/journal/crash"
 )
 
 //goland:noinspection GoUnusedExportedFunction
-func Autovacuum(ctx context.Context, dbc db.Connection, journalID, crashID uint16) {
-	go orm.NewTable(journalID, orm.BatchIndex(idxJournal)).Autovacuum(ctx, dbc)
-	crash.Autovacuum(ctx, dbc, crashID)
+func Autovacuum(ctx context.Context, dbc db.Connection, journalID uint16, vcPack int, opts ...orm.Option) {
+	go orm.NewTable(journalID, orm.BatchIndex(idxJournal)).Autovacuum(ctx, dbc, vcPack, opts...)
+}
+
+//goland:noinspection GoUnusedExportedFunction
+func Vacuum(dbc db.Connection, journalID uint16, vcPack int) error {
+	return orm.NewTable(journalID, orm.BatchIndex(idxJournal)).Vacuum(dbc, vcPack)
 }

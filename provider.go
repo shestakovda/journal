@@ -1,14 +1,16 @@
 package journal
 
 import (
+	"encoding/json"
 	"fmt"
 	"os"
+	"strings"
 	"sync"
 	"time"
 
-	"github.com/shestakovda/typex"
-
+	"github.com/google/go-cmp/cmp"
 	"github.com/shestakovda/journal/crash"
+	"github.com/shestakovda/typex"
 )
 
 /*
@@ -83,6 +85,29 @@ func (p *provider) Model(mtp ModelType, mid string, txt string, args ...interfac
 		Type: mtp.ID(),
 		Text: fmt.Sprintf(txt, args...),
 	})
+}
+
+func (p *provider) Dump(mtp ModelType, mid string, items ...interface{}) {
+	var data []byte
+	var err error
+
+	for i := range items {
+		if data, err = json.MarshalIndent(items[i], "", "\t"); err != nil {
+			p.Crash(err)
+		} else {
+			p.Model(mtp, mid, string(data))
+		}
+	}
+}
+
+func (p *provider) Diff(mtp ModelType, mid string, old, new interface{}) {
+	var diff string
+
+	if diff = cmp.Diff(old, new); diff == "" {
+		return
+	}
+
+	p.Model(mtp, mid, strings.TrimSpace(diff))
 }
 
 func (p *provider) Crash(err error) (r *crash.Report) {

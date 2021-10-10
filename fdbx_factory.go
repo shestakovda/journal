@@ -99,6 +99,30 @@ func (f *fdbxFactory) ByDate(from, last time.Time, page uint, _ ...string) (_ Cu
 	return newFdbxCursor(f, qid, que), nil
 }
 
+func (f *fdbxFactory) ByDateSortable(from, to time.Time, page uint, desc bool) (_ Cursor, err error) {
+	var qid string
+
+	que := f.tbl.Select(f.tx).Page(int(page)).ByIndexRange(
+		IndexStart,
+		fdbx.Time2Byte(from),
+		fdbx.Time2Byte(to),
+	)
+
+	if desc {
+		que.Reverse()
+	}
+
+	if qid, err = que.Save(); err != nil {
+		return nil, errx.ErrInternal.WithReason(err).WithDebug(errx.Debug{
+			"От момента":      from.UTC().Format(time.RFC3339Nano),
+			"До момента":      to.UTC().Format(time.RFC3339Nano),
+			"Размер страницы": page,
+		})
+	}
+
+	return newFdbxCursor(f, qid, que), nil
+}
+
 func (f *fdbxFactory) ByModelDate(
 	mtp ModelType,
 	mid string,
@@ -156,6 +180,29 @@ func (f *fdbxFactory) ImportEntries(entries ...*Entry) (err error) {
 
 	if err = f.tbl.Upsert(f.tx, rows...); err != nil {
 		return ErrInsert.WithReason(err)
+	}
+
+	return nil
+}
+
+func (f *fdbxFactory) Delete(ids ...string) (err error) {
+	if len(ids) == 0 {
+		return nil
+	}
+
+	keys := make([]fdb.Key, 0, len(ids))
+	var uid typex.UUID
+
+	for i := range ids {
+		if uid, err = typex.ParseUUID(ids[i]); err != nil {
+			return ErrValidate.WithReason(err).WithDetail("Некорректный формат идентификатора")
+		}
+
+		keys = append(keys, fdb.Key(uid))
+	}
+
+	if err = f.tbl.Delete(f.tx, keys...); err != nil {
+		return ErrDelete.WithReason(err)
 	}
 
 	return nil

@@ -67,12 +67,36 @@ type Provider interface {
 	Model(mtp ModelType, mid string, txt string, args ...interface{})
 
 	/*
+		Dump - сериализация одной или нескольких записей в json со ссылкой на какую-то модель в БД.
+
+		* mtp - тип модели записи журнала, один из допустимых для логирования и поиска
+		* mid - идентификатор модели, будет участвовать в поисковом индексе
+		* items - одна или несколько моделей для записи
+
+		* Сериализация выполняется через json.MarshalIndent с отступом \t
+		* Если не удалось сериализовать в json, то вызовется Crash
+	*/
+	Dump(mtp ModelType, mid string, items ...interface{})
+
+	/*
+		Diff - логирование изменений между старыми данными и новыми со ссылкой на какую-то модель в БД.
+
+		* mtp - тип модели записи журнала, один из допустимых для логирования и поиска
+		* mid - идентификатор модели, будет участвовать в поисковом индексе
+		* old - структура данных до изменения
+		* new - структура данных после изменения
+
+		* Если изменений нет, то ничего не логируется
+	*/
+	Diff(mtp ModelType, mid string, old, new interface{})
+
+	/*
 		Crash - логирование ошибки в журнал с формированием и записью отчета.
 
 		* err - любая ошибка, которая будет возвращена как внешняя
 
 		* Если err = nil, то возвращается тоже nil
-		* Ошибка логируется как модель с идентификатором типа core.ModelTypeCrash
+		* Ошибка логируется как модель с идентификатором типа ModelTypeCrash
 		* В текстовый комментарий к модели идет содержимое err.Error()
 	*/
 	Crash(err error) *crash.Report
@@ -151,6 +175,11 @@ type Factory interface {
 	ByDate(from, to time.Time, page uint, services ...string) (_ Cursor, err error)
 
 	/*
+		ByDateSortable - формирование курсора перебора по дате c возможностью указания направления сортировки
+	*/
+	ByDateSortable(from, to time.Time, page uint, desc bool) (_ Cursor, err error)
+
+	/*
 		ByModelDate - формирование курсора перебора по модели и дате
 	*/
 	ByModelDate(mtp ModelType, mid string, from, to time.Time, page uint, services ...string) (_ Cursor, err error)
@@ -159,6 +188,16 @@ type Factory interface {
 		ImportEntries - массовая загрузка сразу нескольких моделей
 	*/
 	ImportEntries(...*Entry) error
+
+	/*
+		Delete - удаление списка моделей из БД
+
+		* Если модель уже удалена, то ошибки не будет
+		* Если переданный ИД не UUID, то возвращается ErrValidate
+		* Если произошла какая-то ошибка при удалении, то возвращается ErrDelete
+		* Не удаляет дочерние сrash
+	*/
+	Delete(ids ...string) error
 }
 
 // Model - запись журнала в БД
@@ -167,6 +206,15 @@ type Model interface {
 		Import - копирование основного представления в модель и сохранение в БД.
 	*/
 	Import(*Entry) error
+
+	/*
+		Delete - удаление данных из БД
+
+		* Если модель уже удалена, то ошибки не будет
+		* Если произошла какая-то ошибка при удалении, то возвращается ErrDelete
+		* Не удаляет дочерние сrash
+	*/
+	Delete() error
 
 	/*
 		Export - основное представление записи журнала.
@@ -206,6 +254,7 @@ type CrashHandler func(report *crash.Report, chain []*Stage)
 var (
 	ErrSelect   = errx.New("Ошибка загрузки записи журнала").WithReason(errx.ErrInternal)
 	ErrInsert   = errx.New("Ошибка сохранения записи журнала").WithReason(errx.ErrInternal)
+	ErrDelete   = errx.New("Ошибка удаления записи журнала").WithReason(errx.ErrInternal)
 	ErrNotFound = errx.New("Не найдены подходящие записи журнала").WithReason(errx.ErrNotFound)
 	ErrValidate = errx.New("Ошибка валидации входных данных").WithReason(errx.ErrBadRequest)
 )
